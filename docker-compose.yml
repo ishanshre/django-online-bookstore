@@ -1,0 +1,27 @@
+version: "3.9"
+
+
+services:
+  web:
+    build: .
+    command: python /code/manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/code
+    ports:
+      - 8000:8000
+    depends_on:
+      - db
+    environment:
+      - POSTGRES_NAME=bookestore
+      - POSTGRES_USER=bookestore
+      - POSTGRES_PASSWORD=bookestore
+  db:
+    image:  postgres:13
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_DB=bookestore
+      - POSTGRES_USER=bookestore
+      - POSTGRES_PASSWORD=bookestore
+volumes:
+  postgres_data:
