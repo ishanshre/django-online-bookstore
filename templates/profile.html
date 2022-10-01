@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load static %}
 {% block title %}Home{% endblock title %}
 {% block body %}
 <h1>Name: {{ profile.user.first_name }} {{ profile.user.last_name }}</h1>
@@ -12,4 +13,5 @@
 <h3>Last Updated : &emsp13; {{ profile.updated }}</h3>
 <h3>Last Login : &emsp13; {{ profile.user.last_login }}</h3>
 <a href="{% url 'accounts:password_change' %}">Change Password</a>
+<a href="{% url 'accounts:profile_update' %}">Update Profile</a>
 {% endblock body %}
