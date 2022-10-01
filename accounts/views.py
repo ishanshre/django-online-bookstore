@@ -8,6 +8,8 @@ from django.urls import reverse_lazy
 from django.contrib.auth.views import (
     LoginView,
     PasswordChangeView,
+    PasswordResetView,
+    PasswordResetConfirmView,
 )
 
 # Create your views here.
@@ -47,4 +49,24 @@ class UserPasswordChangeView(LoginRequiredMixin,SuccessMessageMixin, PasswordCha
     template_name = 'password_change.html'
     success_message = 'Password Changed Successfully'
     success_url = reverse_lazy('shop:index')
-    
+
+class UserPasswordResetView(SuccessMessageMixin, PasswordResetView):
+    template_name = 'password_reset.html'
+    email_template_name = 'password_reset_email.html'
+    success_message = 'Reset email sent to your email address'
+    success_url = reverse_lazy('shop:index')
+
+    def form_invalid(self, form):
+        messages.add_message(self.request, messages.ERROR, 'Failed! Please Try Again')
+        return super().form_invalid(form)
+
+
+class UserPasswordResetConfirmView(SuccessMessageMixin, PasswordResetConfirmView):
+    template_name = 'password_reset_confirm.html'
+    success_message = 'Password Reset Successfull'
+    success_url = reverse_lazy('accounts:login')
+
+    def form_invalid(self, form):
+        messages.add_message(self.request, messages.ERROR, 'Failed! Please Try Again')
+        return super().form_invalid(form)
+        
