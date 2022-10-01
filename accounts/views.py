@@ -3,8 +3,12 @@ from .forms import CustomUserCreationForm, UserLoginForm
 from django.views.generic.edit import CreateView
 from django.contrib.messages.views import SuccessMessageMixin
 from django.contrib import messages
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy
-from django.contrib.auth.views import LoginView
+from django.contrib.auth.views import (
+    LoginView,
+    PasswordChangeView,
+)
 
 # Create your views here.
 
@@ -37,3 +41,10 @@ class UserLoginView(messages.views.SuccessMessageMixin, LoginView):
         if request.user.is_authenticated:
             return redirect('shop:index.html')
         return super(UserLoginView, self).dispatch(request, *args, **kwargs)
+
+
+class UserPasswordChangeView(LoginRequiredMixin,SuccessMessageMixin, PasswordChangeView):
+    template_name = 'password_change.html'
+    success_message = 'Password Changed Successfully'
+    success_url = reverse_lazy('shop:index')
+    
