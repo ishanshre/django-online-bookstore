@@ -18,7 +18,6 @@ class User(AbstractUser):
 
 
 class Profile(models.Model):
-    
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
     avatar = models.ImageField(upload_to='profile_avatar/', blank=True, null=True, default='default.png')
     identity = models.ImageField(upload_to='identity/', blank=True, null=True,  default='default.png')
