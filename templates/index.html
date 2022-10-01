@@ -6,7 +6,7 @@
     username = {{ user.username }}
     email = {{ user.email }}
     <a href="{% url 'accounts:logout' %}">Logout</a>
-    <a href="{% url 'accounts:password_change' %}">Change Password</a>
+    <a href="{% url 'accounts:profile' %}">{{ user.username}}'s Profile</a>
     {% else %}
     <a href="{% url 'accounts:login' %}">Login</a>
     <a href="{% url 'accounts:signup' %}">SignUp</a>

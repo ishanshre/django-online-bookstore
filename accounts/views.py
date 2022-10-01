@@ -1,6 +1,8 @@
 from django.shortcuts import render, redirect
 from .forms import CustomUserCreationForm, UserLoginForm
 from django.views.generic.edit import CreateView
+from django.views.generic import DetailView
+from django.views import View
 from django.contrib.messages.views import SuccessMessageMixin
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -11,6 +13,7 @@ from django.contrib.auth.views import (
     PasswordResetView,
     PasswordResetConfirmView,
 )
+from .models import Profile
 
 # Create your views here.
 
@@ -41,7 +44,7 @@ class UserLoginView(messages.views.SuccessMessageMixin, LoginView):
     
     def dispatch(self, request, *args, **kwargs):
         if request.user.is_authenticated:
-            return redirect('shop:index.html')
+            return redirect('shop:index')
         return super(UserLoginView, self).dispatch(request, *args, **kwargs)
 
 
@@ -60,6 +63,11 @@ class UserPasswordResetView(SuccessMessageMixin, PasswordResetView):
         messages.add_message(self.request, messages.ERROR, 'Failed! Please Try Again')
         return super().form_invalid(form)
 
+    def dispatch(self, request, *args, **kwargs):
+        if request.user.is_authenticated:
+            return redirect('shop:index')
+        return super(UserPasswordResetView, self).dispatch(request, *args, **kwargs)
+
 
 class UserPasswordResetConfirmView(SuccessMessageMixin, PasswordResetConfirmView):
     template_name = 'password_reset_confirm.html'
@@ -70,3 +78,14 @@ class UserPasswordResetConfirmView(SuccessMessageMixin, PasswordResetConfirmView
         messages.add_message(self.request, messages.ERROR, 'Failed! Please Try Again')
         return super().form_invalid(form)
         
+class ProfileView(LoginRequiredMixin, DetailView):
+    model = Profile
+    context_object_name = 'profile'
+    template_name = 'profile.html'
+
+    def get_object(self):
+        return Profile.objects.get(user=self.request.user)
+
+
+class ProfileUpdateView(LoginRequiredMixin, View):
+    
