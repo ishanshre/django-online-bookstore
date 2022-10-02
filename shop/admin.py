@@ -7,6 +7,7 @@ from .models import (
     Author,
     Book,
     Review,
+    BookImages
 )
 # Register your models here.
 
@@ -16,4 +17,4 @@ admin.site.register(Address)
 admin.site.register(Publisher)
 admin.site.register(Author)
 admin.site.register(Book)
-admin.site.register(Review)
+admin.site.register(BookImages)

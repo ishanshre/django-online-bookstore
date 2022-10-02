@@ -51,6 +51,7 @@ class Author(models.Model):
 class Book(models.Model):
     title = models.CharField(max_length=100)
     slug = models.SlugField(null=False, unique=True)
+    #image = models.ImageField(upload_to='book/', default="default_book.png", blank=True, null=True)
     description = models.CharField(max_length=500)
     published_date = models.DateField()
     isbn = models.CharField(max_length=13, unique=True)
@@ -71,8 +72,6 @@ class Book(models.Model):
     def __str__(self):
         return self.title
 
-
-
 class Review(models.Model):
     rating = models.PositiveIntegerField(validators=[MinValueValidator(1), MaxValueValidator(5)])
     user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, related_name='review')
@@ -86,3 +85,11 @@ class Review(models.Model):
 
     def __str__(self):
         return self.rating
+
+
+class BookImages(models.Model):
+    book = models.ForeignKey(Book, on_delete=models.CASCADE, related_name='images', default='default.png')
+    image = models.ImageField(upload_to=r"{book.title}/", blank=True, null=True)
+
+    def __str__(self):
+        return self.book.title
