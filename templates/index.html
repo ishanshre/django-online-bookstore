@@ -2,13 +2,31 @@
 {% block title %}Home{% endblock title %}
 {% block body %}
 <h1>welcome to book store</h1>
-    {% if user.is_authenticated %}
-    username = {{ user.username }}
-    email = {{ user.email }}
-    <a href="{% url 'accounts:logout' %}">Logout</a>
-    <a href="{% url 'accounts:profile' %}">{{ user.username}}'s Profile</a>
-    {% else %}
-    <a href="{% url 'accounts:login' %}">Login</a>
-    <a href="{% url 'accounts:signup' %}">SignUp</a>
-    {% endif %}
+    <div>
+        {% if user.is_authenticated %}
+        username = {{ user.username }}
+        email = {{ user.email }}
+        <a href="{% url 'accounts:logout' %}">Logout</a>
+        <a href="{% url 'accounts:profile' %}">{{ user.username}}'s Profile</a>
+        {% else %}
+        <a href="{% url 'accounts:login' %}">Login</a>
+        <a href="{% url 'accounts:signup' %}">SignUp</a>
+        {% endif %}
+    </div>
+    <div>
+        <label for="Genre">Genre:</label>
+        <select name="Genre" id="Genre">
+            {% for genre in genres %}
+            <option value="{{ genre }}">{{ genre|title }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <hr>
+    <div>
+        {% for book in books %}
+            <img src="{{ book.book_profile_image.url }}" alt="book">
+            <a href="{{ book.get_absolute_url }}">{{ book.title|title }}</a>
+            <br><hr>
+        {% endfor %}
+    </div>
 {% endblock body %}

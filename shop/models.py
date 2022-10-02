@@ -2,6 +2,7 @@ from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.utils.text import slugify
 from django.contrib.auth import get_user_model
+from django.urls import reverse
 # Create your models here.
 
 class PublishedManager(models.Manager):
@@ -14,6 +15,9 @@ class Genre(models.Model):
 
     def __str__(self):
         return self.genre
+    
+    class Meta:
+        ordering = ['genre']
 
 class Language(models.Model):
     language = models.CharField(max_length=50)
@@ -43,15 +47,16 @@ class Author(models.Model):
     last_name = models.CharField(max_length=20)
     description = models.CharField(max_length=300)
     avatar = models.ImageField(upload_to='author_avatar', blank=True, null=True)
-
+    slug = models.SlugField(unique=True, null=False)
     def __str__(self):
         return f"{self.first_name} {self.last_name}"
+
 
 
 class Book(models.Model):
     title = models.CharField(max_length=100)
     slug = models.SlugField(null=False, unique=True)
-    #image = models.ImageField(upload_to='book/', default="default_book.png", blank=True, null=True)
+    book_profile_image = models.ImageField(upload_to='book_profile/', default="default_book.png", blank=True, null=True)
     description = models.CharField(max_length=500)
     published_date = models.DateField()
     isbn = models.CharField(max_length=13, unique=True)
@@ -71,6 +76,9 @@ class Book(models.Model):
 
     def __str__(self):
         return self.title
+    
+    def get_absolute_url(self):
+        return reverse('shop:book_detail', args=[self.slug])
 
 class Review(models.Model):
     rating = models.PositiveIntegerField(validators=[MinValueValidator(1), MaxValueValidator(5)])
@@ -89,7 +97,7 @@ class Review(models.Model):
 
 class BookImages(models.Model):
     book = models.ForeignKey(Book, on_delete=models.CASCADE, related_name='images', default='default.png')
-    image = models.ImageField(upload_to=r"{book.title}/", blank=True, null=True)
+    image = models.ImageField(upload_to="book/", blank=True, null=True)
 
     def __str__(self):
         return self.book.title
