@@ -33,7 +33,6 @@ class UserSignUpView(SuccessMessageMixin, CreateView):
 
     def form_valid(self, form, *args, **kwargs):
         user = form.save(commit=False)
-        user.is_active = False
         user.save()
         
         current_site = get_current_site(self.request)
@@ -78,6 +77,27 @@ class ActivateAccount(View):
         else:
             messages.warning(self.request, "Invalid Activation Link")
             return redirect('shop:index')
+
+
+class ResendActivateAccounts(LoginRequiredMixin, View):
+    User = get_user_model()
+    def get(self, request, *args, **kwargs):
+        user = self.User.objects.get(id=request.user.id)
+        current_site = get_current_site(request)
+        subject = 'Activate your Kitabs Pustakalaya Account'
+        message = render_to_string('activation_email.html', {
+            'user':user,
+            'domain':current_site,
+            'uid':urlsafe_base64_encode(force_bytes(user.pk)),
+            'token':account_activation_token.make_token(user)
+        })
+        to_email = user.email
+        email = EmailMessage(
+            subject, message, to=[to_email]
+        )
+        email.send()
+        messages.success(request, 'Activation link has been sent to your email address')
+        return redirect('shop:index')
 
 class UserLoginView(messages.views.SuccessMessageMixin, LoginView):
     form_class = UserLoginForm

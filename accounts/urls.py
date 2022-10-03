@@ -12,4 +12,5 @@ urlpatterns = [
     path('profile/', views.ProfileView.as_view(), name='profile'),
     path('profile/update', views.ProfileUpdateView.as_view(), name='profile_update'),
     path('activate/<uidb64>/<token>/', views.ActivateAccount.as_view(), name='activate'),
+    path('resend_activate/', views.ResendActivateAccounts.as_view(), name='resend_activate')
 ]
