@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     #local apps
     'accounts.apps.AccountsConfig',
     'shop.apps.ShopConfig',
+    'contact.apps.ContactConfig',
 ]
 
 MIDDLEWARE = [
