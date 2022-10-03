@@ -5,6 +5,7 @@ from django.contrib.auth import get_user_model
 from django.urls import reverse
 from django_extensions.db.fields import AutoSlugField
 from django.utils.translation import gettext as _
+from ckeditor_uploader.fields import RichTextUploadingField
 # Create your models here.
 
 class PublishedManager(models.Manager):
@@ -34,7 +35,7 @@ class Address(models.Model):
 
 class Publisher(models.Model):
     name = models.CharField(max_length=50)
-    description = models.CharField(max_length=500)
+    description = RichTextUploadingField(max_length=500)
     email = models.EmailField(max_length=50)
     website = models.URLField(max_length=255)
     established = models.DateField(blank=True, null=True)
@@ -46,7 +47,7 @@ class Publisher(models.Model):
 class Author(models.Model):
     first_name = models.CharField(max_length=20)
     last_name = models.CharField(max_length=20)
-    description = models.CharField(max_length=300)
+    description = RichTextUploadingField(max_length=300)
     avatar = models.ImageField(upload_to='author_avatar', blank=True, null=True)
     slug = AutoSlugField(_('slug'), max_length=50, unique=True, populate_from=('first_name','last_name',))
     def __str__(self):
@@ -59,7 +60,7 @@ class Book(models.Model):
     title = models.CharField(max_length=100)
     slug = AutoSlugField(_('slug'), max_length=50, unique=True, populate_from=('title',))
     book_profile_image = models.ImageField(upload_to='book_profile/', default="default_book.png", blank=True, null=True)
-    description = models.CharField(max_length=500)
+    description = RichTextUploadingField(max_length=500)
     published_date = models.DateField()
     isbn = models.CharField(max_length=13, unique=True)
     author = models.ForeignKey(Author, on_delete=models.CASCADE, related_name='books')
