@@ -8,7 +8,6 @@ class Contact(models.Model):
     phone = models.PositiveIntegerField(max_length=10)
     subject = models.CharField(max_length=50)
     message = models.CharField(max_length=500)
-    terms_and_condition = models.Char
-
+    
     def __str__(self):
         return f"{self.first_name} {self.last_name}"
