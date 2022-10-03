@@ -1,10 +1,11 @@
 {% extends 'base.html' %}
-{% block title %}Home{% endblock title %}
+{% block title %}{{ book.title }}{% endblock title %}
 {% block body %}
 <h1>welcome to book store</h1>
+<a href="{% url 'shop:index' %}">Home</a>
     <img src="{{ book.book_profile_image.url }}" alt="book_profile">
     <h3>Title: {{ book.title }}</h3>
-    <h3>Author: {{ book.author }}</h3>
+    <h3>Author: <a href="{{ book.author.get_absolute_url }}">{{ book.author }}</a></h3>
     <h3>Publicished Date: {{ book.published_date }}</h3>
     <h3>Genre: {{ book.genre }}</h3>
     <h3>Language: {{ book.language }}</h3>

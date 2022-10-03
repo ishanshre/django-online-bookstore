@@ -3,6 +3,8 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 from django.utils.text import slugify
 from django.contrib.auth import get_user_model
 from django.urls import reverse
+from django_extensions.db.fields import AutoSlugField
+from django.utils.translation import gettext as _
 # Create your models here.
 
 class PublishedManager(models.Manager):
@@ -12,7 +14,6 @@ class PublishedManager(models.Manager):
 
 class Genre(models.Model):
     genre =  models.CharField(max_length=50)
-
     def __str__(self):
         return self.genre
     
@@ -47,21 +48,22 @@ class Author(models.Model):
     last_name = models.CharField(max_length=20)
     description = models.CharField(max_length=300)
     avatar = models.ImageField(upload_to='author_avatar', blank=True, null=True)
-    slug = models.SlugField(unique=True, null=False)
+    slug = AutoSlugField(_('slug'), max_length=50, unique=True, populate_from=('first_name','last_name',))
     def __str__(self):
         return f"{self.first_name} {self.last_name}"
 
-
+    def get_absolute_url(self):
+        return reverse('shop:author_detail', args=[self.slug])
 
 class Book(models.Model):
     title = models.CharField(max_length=100)
-    slug = models.SlugField(null=False, unique=True)
+    slug = AutoSlugField(_('slug'), max_length=50, unique=True, populate_from=('title',))
     book_profile_image = models.ImageField(upload_to='book_profile/', default="default_book.png", blank=True, null=True)
     description = models.CharField(max_length=500)
     published_date = models.DateField()
     isbn = models.CharField(max_length=13, unique=True)
-    author = models.ForeignKey(Author, on_delete=models.CASCADE)
-    publisher = models.ForeignKey(Publisher, on_delete=models.CASCADE)
+    author = models.ForeignKey(Author, on_delete=models.CASCADE, related_name='books')
+    publisher = models.ForeignKey(Publisher, on_delete=models.CASCADE, related_name='books')
     genre = models.ManyToManyField(Genre)
     language = models.ManyToManyField(Language)
     is_active = models.BooleanField(default=True)

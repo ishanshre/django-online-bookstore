@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% block title %}Author Detail{% endblock title %}
+{% block body %}
+<a href="{% url 'shop:index' %}">Home</a>
+<h1>Name: {{ author.first_name }} {{ author.last_name }}</h1>
+<img src="{{ author.avatar.url }}" alt="author">
+<h3>Description: </h3>
+<p>{{ author.description }}</p>
+<br>
+<hr>
+<h3>Books by the author</h3>
+{% if author.books.all %}
+{% for book in author.books.all %}
+    <div>
+        <img src="{{ book.book_profile_image.url }}" alt="book">
+        <h4>{{ book.title|title }}</h4>
+        <hr>
+    </div>
+{% endfor %}
+{% endif %}
+{% endblock body %}
