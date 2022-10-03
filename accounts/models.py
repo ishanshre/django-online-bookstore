@@ -23,6 +23,7 @@ class Profile(models.Model):
     identity = models.ImageField(upload_to='identity/', blank=True, null=True,  default='default.png')
     date_of_birth = models.DateField(null=True, blank=True)
     phone = models.CharField(max_length=10, blank=True, null=True)
+    email_confirmed = models.BooleanField(default=False)
     created =models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 

@@ -5,8 +5,15 @@ from django.views.generic import DetailView
 from django.views import View
 from django.contrib.messages.views import SuccessMessageMixin
 from django.contrib import messages
+from django.contrib.auth import get_user_model
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy
+from django.contrib.sites.shortcuts import get_current_site
+from accounts.token import account_activation_token
+from django.template.loader import render_to_string
+from django.utils.encoding import force_bytes, force_str
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.core.mail import EmailMessage
 from django.contrib.auth.views import (
     LoginView,
     PasswordChangeView,
@@ -21,8 +28,29 @@ from .models import Profile
 class UserSignUpView(SuccessMessageMixin, CreateView):
     form_class = CustomUserCreationForm
     template_name = 'signup.html'
-    success_message = 'New User Created'
+    success_message = 'New User Created. Please check you email for account confirmation and activation'
     success_url = reverse_lazy('accounts:login')
+
+    def form_valid(self, form, *args, **kwargs):
+        user = form.save(commit=False)
+        user.is_active = False
+        user.save()
+        
+        current_site = get_current_site(self.request)
+        subject = 'Activate your Kitabs Pustakalaya Account'
+        message = render_to_string('activation_email.html', {
+            'user':user,
+            'domain':current_site.domain,
+            'uid':urlsafe_base64_encode(force_bytes(user.pk)),
+            'token':account_activation_token.make_token(user),
+        })
+        to_email = form.cleaned_data.get('email')
+        email = EmailMessage(
+            subject, message, to=[to_email]
+        )
+        email.send()
+        return super().form_valid(form, *args, **kwargs)
+
 
     def form_invalid(self, form):
         messages.add_message(self.request, messages.ERROR, 'Failed To Create user! Try Again')
@@ -32,6 +60,24 @@ class UserSignUpView(SuccessMessageMixin, CreateView):
         if request.user.is_authenticated:
             return redirect('shop:index')
         return super(UserSignUpView, self).dispatch(request, *args, **kwargs)
+
+class ActivateAccount(View):
+    def get(self, request, uidb64, token, *args, **kwargs):
+        User = get_user_model()
+        try:
+            uid = force_str(urlsafe_base64_decode(uidb64))
+            user = User.objects.get(pk=uid)
+        except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+            user=None
+        if user is not None and account_activation_token.check_token(user, token):
+            user.is_active = True
+            user.profile.email_confirmed = True
+            user.save()
+            messages.success(self.request, 'Account Activated Successfully!')
+            return redirect('accounts:login')
+        else:
+            messages.warning(self.request, "Invalid Activation Link")
+            return redirect('shop:index')
 
 class UserLoginView(messages.views.SuccessMessageMixin, LoginView):
     form_class = UserLoginForm

@@ -6,6 +6,7 @@
         {% if user.is_authenticated %}
         username = {{ user.username }}
         email = {{ user.email }}
+        active = {{ user.is_active }}
         <a href="{% url 'accounts:logout' %}">Logout</a>
         <a href="{% url 'accounts:profile' %}">{{ user.username}}'s Profile</a>
         {% else %}
