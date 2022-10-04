@@ -43,7 +43,8 @@ INSTALLED_APPS = [
     'crispy_bootstrap5',
     'ckeditor',
     'ckeditor_uploader',
-
+    'django_phonenumbers',
+    'phonenumber_field',
 
     #local apps
     'accounts.apps.AccountsConfig',
