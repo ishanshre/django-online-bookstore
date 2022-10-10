@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% block title %}{{ book.title }}{% endblock title %}
+{% block body %}
+<a href="{% url 'shop:index' %}">Home</a>
+<h1>Your Cart</h1>
+<table style="width: 50%;">
+    <thead>
+        <tr>
+            <th>SN</th>
+            <th>Book</th>
+            <th>Rate</th>
+            <th>Quantity</th>
+            <th>Subtotal</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for item in cart.cartitems.all %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>{{ item.book.title }}</td>
+                <td>{{ item.rate }}</td>
+                <td>{{ item.quantity }}</td>
+                <td>{{ item.subtotal }}</td>
+                <td>
+                    <a href="#">+</a>
+                    <a href="#">-</a>
+                    <a href="#">x</a>
+                </td>
+            </tr>
+        {% endfor %}
+            <tr>
+                <td>Total</td>
+                <td>{{ cart.total }}</td>
+            </tr>
+    </tbody>
+</table>
+
+{% endblock body %}

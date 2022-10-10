@@ -5,6 +5,9 @@
 <a href="{% url 'shop:index' %}">Home</a>
     <img src="{{ book.book_profile_image.url }}" alt="book_profile">
     <h3>Title: {{ book.title }}</h3>
+    <form action="" method="get">
+        <a href="{% url 'orders:add_to_cart' book.id %}">Add To Cart</a>
+    </form>
     <h3>Author: <a href="{{ book.author.get_absolute_url }}">{{ book.author }}</a></h3>
     <h3>Publicished Date: {{ book.published_date }}</h3>
     <h3>Genre: {{ book.genre }}</h3>

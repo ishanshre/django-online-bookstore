@@ -14,6 +14,7 @@
         <a href="{% url 'accounts:signup' %}">SignUp</a>
         {% endif %}
         <a href="{% url 'contact:contact_us' %}">Contact Us</a>
+        <a href="{% url 'orders:cart_view' %}">Cart</a>
     </div>
     <div>
         {% for genre in genres %}
@@ -26,6 +27,9 @@
             <img src="{{ book.book_profile_image.url }}" alt="book">
             <a href="{{ book.get_absolute_url }}">{{ book.title|title }}</a>
             <p>{{ book.price }}</p>
+            <form action="" method="get">
+                <a href="{% url 'orders:add_to_cart' book.id %}">Add To Cart</a>
+            </form>
             <br><hr>
         {% endfor %}
     </div>
