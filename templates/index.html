@@ -25,6 +25,7 @@
         {% for book in books %}
             <img src="{{ book.book_profile_image.url }}" alt="book">
             <a href="{{ book.get_absolute_url }}">{{ book.title|title }}</a>
+            <p>{{ book.price }}</p>
             <br><hr>
         {% endfor %}
     </div>
