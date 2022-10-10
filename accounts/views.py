@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from .forms import CustomUserCreationForm, UserLoginForm, CustomUserChangeForm, ProfileForm
+from .forms import CustomUserCreationForm, UserLoginForm, CustomUserChangeForm, ProfileForm, CustomPasswordChangeForm
 from django.views.generic.edit import CreateView
 from django.views.generic import DetailView
 from django.views import View
@@ -21,6 +21,8 @@ from django.contrib.auth.views import (
     PasswordResetConfirmView,
 )
 from .models import Profile
+from django.contrib.auth import update_session_auth_hash
+
 
 # Create your views here.
 
@@ -114,10 +116,10 @@ class UserLoginView(messages.views.SuccessMessageMixin, LoginView):
         return super(UserLoginView, self).dispatch(request, *args, **kwargs)
 
 
-class UserPasswordChangeView(LoginRequiredMixin,SuccessMessageMixin, PasswordChangeView):
-    template_name = 'password_change.html'
-    success_message = 'Password Changed Successfully'
-    success_url = reverse_lazy('shop:index')
+# class UserPasswordChangeView(LoginRequiredMixin,SuccessMessageMixin, PasswordChangeView):
+#     template_name = 'password_change.html'
+#     success_message = 'Password Changed Successfully'
+#     success_url = reverse_lazy('shop:index')
 
 class UserPasswordResetView(SuccessMessageMixin, PasswordResetView):
     template_name = 'password_reset.html'
@@ -144,39 +146,68 @@ class UserPasswordResetConfirmView(SuccessMessageMixin, PasswordResetConfirmView
         messages.add_message(self.request, messages.ERROR, 'Failed! Please Try Again')
         return super().form_invalid(form)
         
-class ProfileView(LoginRequiredMixin, DetailView):
-    model = Profile
-    context_object_name = 'profile'
-    template_name = 'profile.html'
+# class ProfileView(LoginRequiredMixin, DetailView):
+#     model = Profile
+#     context_object_name = 'profile'
+#     template_name = 'profile.html'
 
-    def get_object(self):
-        return Profile.objects.get(user=self.request.user)
+#     def get_object(self):
+#         return Profile.objects.get(user=self.request.user)
 
 
-class ProfileUpdateView(LoginRequiredMixin, View):
+class ProfileAndUpdateView(LoginRequiredMixin, View):
     template_name = 'profile_update.html'
     def get(self, request, *args, **kwargs):
         user_form = CustomUserChangeForm(instance = request.user)
+        profile = Profile.objects.get(user=request.user)
         profile_form = ProfileForm(instance=request.user.profile)
+        password_change_form = CustomPasswordChangeForm(request.user)
         context = {
             'user_form':user_form,
-            'profile_form':profile_form
+            'profile':profile,
+            'profile_form':profile_form,
+            'password_change_form':password_change_form,
         }
         return render(request, self.template_name, context)
     
     def post(self, request, *args, **kwargs):
-        user_form = CustomUserChangeForm(request.POST, instance = request.user)
-        profile_form = ProfileForm(request.POST, request.FILES, instance = request.user.profile)
-        if user_form.is_valid() and profile_form.is_valid():
-            user_form.save()
-            profile_form.save()
-            messages.success(request, 'Profile Updated')
-            return redirect('accounts:profile')
-        else:
+        if "profile_update" in request.POST:
+            user_form = CustomUserChangeForm(request.POST, instance = request.user)
+            profile_form = ProfileForm(request.POST, request.FILES, instance = request.user.profile)
+            password_change_form = CustomPasswordChangeForm(request.user)
+            if user_form.is_valid() and profile_form.is_valid():
+                user_form.save()
+                profile_form.save()
+                messages.success(request, 'Profile Updated')
+                return redirect('accounts:profile_and_update')
+            else:
+                user_form = CustomUserChangeForm(instance = request.user)
+                profile_form = ProfileForm(instance=request.user.profile)
+                messages.error(request, 'Failed! Try Again')
+            context = {
+                'user_form':user_form,
+                'profile':profile,
+                'profile_form':profile_form,
+                'password_change_form':password_change_form,
+            }
+            return render(request, self.template_name, context)
+        if "change_password" in request.POST:
             user_form = CustomUserChangeForm(instance = request.user)
+            profile = Profile.objects.get(user=request.user)
             profile_form = ProfileForm(instance=request.user.profile)
-            messages.error(request, 'Failed! Try Again')
-        return render(request, self.template_name, {
-            'user_form':user_form,
-            'profile_form':profile_form
-        })
+            password_change_form = CustomPasswordChangeForm(request.user, request.POST)
+            if password_change_form.is_valid():
+                user = password_change_form.save()
+                update_session_auth_hash(request, user)
+                messages.success(request, 'Password Change Successfull')
+                return redirect('accounts:profile_and_update')
+            else:
+                password_change_form = CustomPasswordChangeForm(request.user)
+            context = {
+                'user_form':user_form,
+                'profile':profile,
+                'profile_form':profile_form,
+                'password_change_form':password_change_form,
+            }
+            return render(request, self.template_name, context)
+

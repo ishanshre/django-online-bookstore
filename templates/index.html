@@ -8,7 +8,7 @@
         email = {{ user.email }}
         active = {{ user.is_active }}
         <a href="{% url 'accounts:logout' %}">Logout</a>
-        <a href="{% url 'accounts:profile' %}">{{ user.username}}'s Profile</a>
+        <a href="{% url 'accounts:profile_and_update' %}">{{ user.username}}'s Profile</a>
         {% else %}
         <a href="{% url 'accounts:login' %}">Login</a>
         <a href="{% url 'accounts:signup' %}">SignUp</a>
