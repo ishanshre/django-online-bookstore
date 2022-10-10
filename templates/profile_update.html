@@ -9,8 +9,14 @@
 <h3>Date of birth : &emsp13; {{ profile.date_of_birth }}</h3>
 <h3>Phone : &emsp13; {{ profile.phone }}</h3>
 <h3>Account Created : &emsp13; {{ profile.created }}</h3>
-<h3>Last Updated : &emsp13; {{ profile.updated }}</h3>
 <h3>Last Login : &emsp13; {{ profile.user.last_login }}</h3>
+<h3>Authors Followed: {{ followings_count }}</h3>
+<h3>List of Authors followed</h3>
+<ul>
+    {% for following in followings %}
+        <a href="{{ following.followed.get_absolute_url }}"><li>{{ following.followed }}</li></a>
+    {% endfor %}
+</ul>
 {% if not profile.email_confirmed %}
     <a href="{% url 'accounts:resend_activate' %}" type="button" role="button">Resend Activation Link</a>
 {% endif %}

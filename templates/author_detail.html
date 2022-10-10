@@ -3,6 +3,20 @@
 {% block body %}
 <a href="{% url 'shop:index' %}">Home</a>
 <h1>Name: {{ author.first_name }} {{ author.last_name }}</h1>
+{% if user.is_authenticated %}
+{% if following_status %}
+    <form action="{% url 'follow:remove_follow' author.slug %}" method="post">
+        {% csrf_token %}
+        <button type="submit">Unfollow</button>
+    </form>
+{% else %}
+<form action="{% url 'follow:add_follow' author.slug %}" method="post">
+    {% csrf_token %}
+    <button type="submit">follow</button>
+</form>
+{% endif %}
+{% endif %}
+<h3>No. of followers: {{ followers_count }}</h3>
 <img src="{{ author.avatar.url }}" alt="author">
 <h3>Description: </h3>
 <p>{{ author.description }}</p>

@@ -22,6 +22,7 @@ from django.contrib.auth.views import (
 )
 from .models import Profile
 from django.contrib.auth import update_session_auth_hash
+from follow.models import Follow
 
 
 # Create your views here.
@@ -162,11 +163,15 @@ class ProfileAndUpdateView(LoginRequiredMixin, View):
         profile = Profile.objects.get(user=request.user)
         profile_form = ProfileForm(instance=request.user.profile)
         password_change_form = CustomPasswordChangeForm(request.user)
+        followings = Follow.objects.filter(followed_by=request.user)
+        followings_count = Follow.objects.filter(followed_by=request.user).count()
         context = {
             'user_form':user_form,
             'profile':profile,
             'profile_form':profile_form,
             'password_change_form':password_change_form,
+            'followings':followings,
+            'followings_count':followings_count,
         }
         return render(request, self.template_name, context)
     
