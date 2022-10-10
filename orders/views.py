@@ -97,3 +97,14 @@ class CartManageView(View):
         else:
             pass
         return redirect('orders:cart_view')
+
+
+class CartEmptyView(View):
+    def get(self, request, *args, **kwargs):
+        cart_id = request.session.get('cart_id', None)
+        if cart_id:
+            cart = Cart.objects.get(id=cart_id)
+            cart.cartitems.all().delete()
+            cart.total = 0
+            cart.save()
+        return redirect("orders:cart_view")

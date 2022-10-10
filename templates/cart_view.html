@@ -33,6 +33,9 @@
                 <td>Total</td>
                 <td>{{ cart.total }}</td>
             </tr>
+            <tr>
+                <td><a href="{% url 'orders:cart_empty_view' %}">Empty Cart</a></td>
+            </tr>
     </tbody>
 </table>
 
