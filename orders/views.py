@@ -41,14 +41,14 @@ class AddToCartView(View):
             cart_object = Cart.objects.create(total=0)
             self.request.session['cart_id'] = cart_object.id
             cart_item = CartItem.objects.create(
-                    cart = cart,
+                    cart = cart_object,
                     book = book_object,
                     rate = book_object.price,
                     quantity=1,
                     subtotal=book_object.price
                 )
-            cart.total += book_object.price
-            cart.save()
+            cart_object.total += book_object.price
+            cart_object.save()
             messages.success(request, 'Item Added To Cart')
             return redirect('shop:index')
         #check if cart product already in cart
@@ -79,12 +79,21 @@ class CartManageView(View):
             cart_item.quantity += 1
             cart_item.subtotal += cart_item.rate
             cart_item.save()
-            cart.total =+ cart_item.rate
+            cart.total += cart_item.rate
             cart.save()
         elif action == 'dec':
-            pass
+            cart_item.quantity -= 1
+            cart_item.subtotal -= cart_item.rate
+            cart_item.save()
+            cart.total -= cart_item.rate
+            cart.save()
+            if cart_item.quantity == 0:
+                cart_item.delete()
+
         elif action == 'rem':
-            pass
+            cart.total -= cart_item.subtotal
+            cart.save()
+            cart_item.delete()
         else:
             pass
         return redirect('orders:cart_view')
