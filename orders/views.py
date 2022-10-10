@@ -67,4 +67,24 @@ class CartView(TemplateView):
             cart = None
         context['cart'] = cart 
         return context
-               
+
+
+class CartManageView(View):
+    def get(self, request, *args, **kwargs):
+        cart_item_id = self.kwargs['cart_item_id']
+        action = request.GET.get('action')
+        cart_item = CartItem.objects.get(id=cart_item_id)
+        cart = cart_item.cart
+        if action == 'inc':
+            cart_item.quantity += 1
+            cart_item.subtotal += cart_item.rate
+            cart_item.save()
+            cart.total =+ cart_item.rate
+            cart.save()
+        elif action == 'dec':
+            pass
+        elif action == 'rem':
+            pass
+        else:
+            pass
+        return redirect('orders:cart_view')

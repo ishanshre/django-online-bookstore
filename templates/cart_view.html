@@ -23,9 +23,9 @@
                 <td>{{ item.quantity }}</td>
                 <td>{{ item.subtotal }}</td>
                 <td>
-                    <a href="#">+</a>
-                    <a href="#">-</a>
-                    <a href="#">x</a>
+                    <a href="{% url 'orders:cart_manage_view' item.id %}?action=inc">+</a>
+                    <a href="{% url 'orders:cart_manage_view' item.id %}?action=dec">-</a>
+                    <a href="{% url 'orders:cart_manage_view' item.id %}?action=rem">x</a>
                 </td>
             </tr>
         {% endfor %}
