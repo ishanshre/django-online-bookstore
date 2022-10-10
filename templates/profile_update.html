@@ -34,5 +34,8 @@
         {{ password_change_form.as_p }}
         <input type="submit" value="Change Password">
     </form>
-    <a href="{% url 'shop:index' %}">Home</a>
+<a href="{% url 'shop:index' %}">Home</a>
+{% if not profile.email_confirmed %}
+    <a href="{% url 'accounts:resend_activate' %}" type="button" role="button">Resend Activation Link</a>
+{% endif %}
 {% endblock body %}
