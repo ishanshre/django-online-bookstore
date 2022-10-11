@@ -1,8 +1,9 @@
 {% extends 'base.html' %}
-{% block title %}{{ book.title }}{% endblock title %}
+{% block title %}Checkout Items{% endblock title %}
 {% block body %}
 <a href="{% url 'shop:index' %}">Home</a>
 <h1>Your Cart</h1>
+<a href="{% url 'orders:cart_view' %}">Update Cart</a>
 <table style="width: 50%;">
     <thead>
         <tr>
@@ -33,11 +34,8 @@
                 <td>Total</td>
                 <td>{{ cart.total }}</td>
             </tr>
-            <tr>
-                <td><a href="{% url 'orders:cart_empty_view' %}">Empty Cart</a></td>
-            </tr>
     </tbody>
 </table>
-<hr>
-<a href="{% url 'orders:checkout' %}">Checkout</a>
+<h3>Checkout Form</h3>
+
 {% endblock body %}

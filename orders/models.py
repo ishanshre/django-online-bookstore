@@ -1,6 +1,7 @@
 from django.db import models
 from shop.models import Book
 from django.contrib.auth import get_user_model
+from .city import CITY_CHOICES
 # Create your models here.
 class Cart(models.Model):
     user = models.ForeignKey(get_user_model(), on_delete=models.SET_NULL, related_name='users', null=True, blank=True)
@@ -20,3 +21,35 @@ class CartItem(models.Model):
 
     def __str__(self):
         return f"Cart: {str(self.cart.id)} Cart Product: {str(self.id)}"
+
+
+
+
+class Address(models.Model):
+    class ADDRESS_TYPE(models.TextChoices):
+        SHIPPING_ADDRESS = "Shipping Address", 'Shipping Address'
+        BILLING_ADDRESS = "Billing Address", 'Billing Address'
+    user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
+    street_address = models.CharField(max_length=100)
+    city = models.CharField(max_length=20, choices=CITY_CHOICES.choices, default=CITY_CHOICES.KATHMANDU)
+    zip_code = models.CharField(max_length=50)
+    address_type = models.CharField(max_length=20, choices=ADDRESS_TYPE.choices, default=ADDRESS_TYPE.SHIPPING_ADDRESS)
+    default = models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.user.username
+
+
+
+class Order(models.Model):
+    class ORDER_STATUS(models.TextChoices):
+        ORDER_RECEIVED = "Order Received", 'Order Received'
+        ORDER_PROCESSING = "Order Processing", 'Order Processing'
+        ON_THE_WAY = "On The Way", 'On The Way' 
+        ORDER_COMPLETED = "Order Completed", 'Order Completed'
+        ORDER_CANCELED = "Order Canceled", 'Order Canceled'
+    
+
+    cart = models.OneToOneField(Cart, on_delete=models.CASCADE, related_name='order_placed')
+    ordered_by = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
+    
