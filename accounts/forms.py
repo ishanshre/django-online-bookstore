@@ -5,6 +5,8 @@ from django import forms
 from .models import Profile
 from django.core.exceptions import ValidationError
 from datetime import date
+from phonenumber_field.formfields import PhoneNumberField
+from phonenumber_field.widgets import PhoneNumberPrefixWidget
 class CustomUserCreationForm(UserCreationForm):
     class Meta(UserCreationForm.Meta):
         model = get_user_model()
@@ -16,6 +18,7 @@ class CustomUserChangeForm(UserChangeForm):
     class Meta:
         model = get_user_model()
         fields = ['first_name','last_name','age','gender','username','email']
+    
 
 
 class UserLoginForm(AuthenticationForm):
@@ -43,7 +46,8 @@ class ProfileForm(forms.ModelForm):
             'phone',
         ]
         widgets = {
-            'date_of_birth': DateInput
+            'date_of_birth': DateInput,
+            'phone': PhoneNumberPrefixWidget(initial="NP")
         }
     
     def clean_date_of_birth(self, *args, **kwargs):

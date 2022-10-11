@@ -2,7 +2,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import MinValueValidator, MaxValueValidator
-
+from phonenumber_field.modelfields import PhoneNumberField
 # Create your models here.
 
 
@@ -22,7 +22,7 @@ class Profile(models.Model):
     avatar = models.ImageField(upload_to='profile_avatar/', blank=True, null=True, default='default.png')
     identity = models.ImageField(upload_to='identity/', blank=True, null=True,  default='default.png')
     date_of_birth = models.DateField(null=True, blank=True)
-    phone = models.CharField(max_length=10, blank=True, null=True)
+    phone = PhoneNumberField(blank=True, null=True)
     email_confirmed = models.BooleanField(default=False)
     created =models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)

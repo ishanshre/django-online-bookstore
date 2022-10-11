@@ -16,3 +16,5 @@ django-utils-six==2.0
 django-ckeditor==6.5.1
 django-phonenumbers==1.0.1 
 django-phonenumber-field==7.0.0 
+pytz>=2015.7
+Babel==2.10.3
