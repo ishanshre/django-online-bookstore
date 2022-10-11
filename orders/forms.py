@@ -6,4 +6,4 @@ from .models import Order
 class CheckOutForm(forms.ModelForm):
     class Meta:
         model = Order
-        fields = ['ordered_by','shipping_address', ]
+        fields = ['ordered_by','shipping_address',]

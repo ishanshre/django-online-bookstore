@@ -1,9 +1,13 @@
 from django.shortcuts import render, redirect
 from django.views import View
 from django.views.generic import TemplateView
+from django.views.generic.edit import CreateView
 from shop.models import Book
 from .models import Cart,CartItem
+from .forms import CheckOutForm
 from django.contrib import messages
+from django.urls import reverse_lazy
+from django.contrib.auth.mixins import LoginRequiredMixin
 # Create your views here.
 class AddToCartView(View):
     def get(self, request, *args, **kwargs):
@@ -111,16 +115,16 @@ class CartEmptyView(View):
 
 
 
-class CheckoutView(View):
+class CheckoutView(LoginRequiredMixin, CreateView):
     template_name = 'checkout.html'
-    def get(self, request, *args, **kwargs):
-        cart_id = request.session.get('cart_id', None)
+    form_class = CheckOutForm
+    success_url = reverse_lazy('shop:index')
+
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        cart_id = self.request.session.get('cart_id', None)
+        cart = None
         if cart_id:
             cart = Cart.objects.get(id=cart_id)
-        else:
-            cart = None
-        
-        context = {
-            'cart':cart,
-        }
-        return render(request, self.template_name, context)
+        context['cart'] = cart
+        return context

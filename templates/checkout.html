@@ -37,5 +37,9 @@
     </tbody>
 </table>
 <h3>Checkout Form</h3>
-
+<form action="" method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <input type="submit" value="Checkout">
+</form>
 {% endblock body %}
