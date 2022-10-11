@@ -26,6 +26,13 @@
     {% endfor %}
 </ul>
 <hr>
+<h3>Add new shipping address</h3>
+<form action="" method="post">
+    {% csrf_token %}
+    {{ address.as_p }}
+    <input type="submit" value="Add">
+</form>
+<hr>
 {% if not profile.email_confirmed %}
     <a href="{% url 'accounts:resend_activate' %}" type="button" role="button">Resend Activation Link</a>
 {% endif %}

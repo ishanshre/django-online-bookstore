@@ -148,10 +148,10 @@ class ShippingAddressDetailView(LoginRequiredMixin, View):
         address_instance = Address.objects.get(slug=address_slug)
         if 'update_address' in request.POST:
             update_form = ShippingAddressForm(request.POST, instance=address_instance)
-            if udpate_form.is_valid():
-                update_form.save()
+            if update_form.is_valid():
+                a = update_form.save()
                 messages.success(request, "Shipping address updated")
-                return redirect('orders:shipping_address_detail', address_slug)
+                return redirect('orders:shipping_address_detail', a.slug)
             else:
                 messages.error(request, "Failed to update! Please try again")
                 return redirect('orders:shipping_address_detail', address_slug)

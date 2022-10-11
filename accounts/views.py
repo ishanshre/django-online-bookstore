@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect
 from .forms import CustomUserCreationForm, UserLoginForm, CustomUserChangeForm, ProfileForm, CustomPasswordChangeForm
+from orders.forms import ShippingAddressForm
 from django.views.generic.edit import CreateView
 from django.views.generic import DetailView
 from django.views import View
@@ -165,8 +166,10 @@ class ProfileAndUpdateView(LoginRequiredMixin, View):
         password_change_form = CustomPasswordChangeForm(request.user)
         followings = Follow.objects.filter(followed_by=request.user)
         followings_count = Follow.objects.filter(followed_by=request.user).count()
-
         #address
+        address = ShippingAddressForm()
+
+
         context = {
             'user_form':user_form,
             'profile':profile,
@@ -174,6 +177,7 @@ class ProfileAndUpdateView(LoginRequiredMixin, View):
             'password_change_form':password_change_form,
             'followings':followings,
             'followings_count':followings_count,
+            'address':address,
         }
         return render(request, self.template_name, context)
     
@@ -217,5 +221,26 @@ class ProfileAndUpdateView(LoginRequiredMixin, View):
                 'password_change_form':password_change_form,
             }
             return render(request, self.template_name, context)
-
-
+        if "update_address" in request.POST:
+            user_form = CustomUserChangeForm(instance = request.user)
+            profile = Profile.objects.get(user=request.user)
+            profile_form = ProfileForm(instance=request.user.profile)
+            password_change_form = CustomPasswordChangeForm(request.user, request.POST)
+            address = ShippingAddressForm(request.POST)
+            if address.is_valid():
+                a = address.save(commit=False)
+                a.user = request.user
+                a.save()
+                messages.success(request, "New Shipping Address Added Successfully")
+                return redirect('accounts:profile_and_update')
+            else:
+                address = ShippingAddressForm()
+                messages.error(request, "Failed to Add New Shipping Address")   
+            context = {
+                'user_form':user_form,
+                'profile':profile,
+                'profile_form':profile_form,
+                'password_change_form':password_change_form,
+                'address':address,
+            }
+            return render(request, self.template_name, context)

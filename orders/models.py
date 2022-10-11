@@ -5,6 +5,7 @@ from .Nepal import CITY_CHOICES, PROVINCE_CHOICES
 from .countries import COUNTRIES_CHOOSE
 from django_extensions.db.fields import AutoSlugField
 from django.utils.translation import gettext as _
+from django.utils.text import slugify
 from django.urls import reverse
 # Create your models here.
 class Cart(models.Model):
@@ -41,13 +42,17 @@ class Address(models.Model):
     zip_code = models.CharField(max_length=50)
     address_type = models.CharField(max_length=20, choices=ADDRESS_TYPE.choices, default=ADDRESS_TYPE.SHIPPING_ADDRESS)
     default = models.BooleanField(default=False)
-    slug = AutoSlugField(_('slug'), max_length=100, unique=True, populate_from=('street_address','provinvce',))
+    slug = AutoSlugField(_('slug'), max_length=100, unique=True, populate_from=('street_address','province',), editable=True)
 
+    def save(self, *args, **kwargs):
+        self.slug = slugify(self.street_address+' '+self.province)
+        return super().save(*args, **kwargs)
     def __str__(self):
         return self.street_address
 
     def get_absolute_url(self):
         return reverse('orders:shipping_address_detail', args=[self.slug])
+
 
 class Order(models.Model):
     class ORDER_STATUS(models.TextChoices):
