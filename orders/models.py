@@ -3,6 +3,9 @@ from shop.models import Book
 from django.contrib.auth import get_user_model
 from .Nepal import CITY_CHOICES, PROVINCE_CHOICES
 from .countries import COUNTRIES_CHOOSE
+from django_extensions.db.fields import AutoSlugField
+from django.utils.translation import gettext as _
+from django.urls import reverse
 # Create your models here.
 class Cart(models.Model):
     user = models.ForeignKey(get_user_model(), on_delete=models.SET_NULL, related_name='users', null=True, blank=True)
@@ -30,7 +33,7 @@ class Address(models.Model):
     class ADDRESS_TYPE(models.TextChoices):
         SHIPPING_ADDRESS = "Shipping Address", 'Shipping Address'
         BILLING_ADDRESS = "Billing Address", 'Billing Address'
-    user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, related_name="address")
+    user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, related_name="order_address")
     street_address = models.CharField(max_length=100)
     provinvce = models.CharField(max_length=50, choices=PROVINCE_CHOICES.choices, default=PROVINCE_CHOICES.BAGMATI)
     city = models.CharField(max_length=20, choices=CITY_CHOICES.choices, default=CITY_CHOICES.KATHMANDU)
@@ -38,11 +41,13 @@ class Address(models.Model):
     zip_code = models.CharField(max_length=50)
     address_type = models.CharField(max_length=20, choices=ADDRESS_TYPE.choices, default=ADDRESS_TYPE.SHIPPING_ADDRESS)
     default = models.BooleanField(default=False)
+    slug = AutoSlugField(_('slug'), max_length=100, unique=True, populate_from=('street_address','provinvce',))
 
     def __str__(self):
         return self.street_address
 
-
+    def get_absolute_url(self):
+        return reverse('orders:shipping_address_detail', args=[self.slug])
 
 class Order(models.Model):
     class ORDER_STATUS(models.TextChoices):

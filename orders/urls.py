@@ -10,4 +10,5 @@ urlpatterns = [
     path('cart_manage_view/<int:cart_item_id>/', views.CartManageView.as_view(), name='cart_manage_view'),
     path('cart_empty_view/', views.CartEmptyView.as_view(), name='cart_empty_view'),
     path('checkout/', views.CheckoutView.as_view(), name='checkout'),
+    path('shipping_address/<slug:slug>/', views.ShippingAddressDetailView.as_view(), name='shipping_address_detail'),
 ]

@@ -1,9 +1,9 @@
 from django.shortcuts import render, redirect
 from django.views import View
-from django.views.generic import TemplateView
+from django.views.generic import TemplateView, DetailView
 from django.views.generic.edit import CreateView
 from shop.models import Book
-from .models import Cart,CartItem
+from .models import Cart,CartItem, Address
 from .forms import CheckOutForm
 from django.contrib import messages
 from django.urls import reverse_lazy
@@ -114,7 +114,6 @@ class CartEmptyView(View):
         return redirect("orders:cart_view")
 
 
-
 class CheckoutView(LoginRequiredMixin, CreateView):
     template_name = 'checkout.html'
     form_class = CheckOutForm
@@ -128,3 +127,9 @@ class CheckoutView(LoginRequiredMixin, CreateView):
             cart = Cart.objects.get(id=cart_id)
         context['cart'] = cart
         return context
+
+
+class ShippingAddressDetailView(LoginRequiredMixin, DetailView):
+    model = Address
+    template_name = 'shipping_address.html'
+    context_object_name = 'shipping_address'

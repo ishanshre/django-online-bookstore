@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% block title %}{{ shipping_address.street_address }}{% endblock title %}
+{% block body %}
+<h1>Shipping Detail</h1>
+<a href="{% url 'shop:index' %}">Home</a>
+    <h3>Shipping Address</h3>
+    <h4>Street Address: {{ shipping_address.street_address }}</h4>
+    <h4>Province: {{ shipping_address.provinvce }}</h4>
+    <h4>City: {{ shipping_address.city }}</h4>
+    <h4>Country: {{ shipping_address.country }}</h4>
+    <h4>Zip code : {{ shipping_address.zip_code }}</h4>
+{% endblock body %}

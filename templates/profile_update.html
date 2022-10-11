@@ -21,8 +21,8 @@
 <hr>
 <h3>Shipping Address</h3>
 <ul>
-    {% for ad in address %}
-        <li>{{ ad }}</li>
+    {% for ad in user.order_address.all %}
+        <li><a href="{{ ad.get_absolute_url }}">{{ ad }}</a></li>
     {% endfor %}
 </ul>
 <hr>
