@@ -221,3 +221,4 @@ class ProfileAndUpdateView(LoginRequiredMixin, View):
             }
             return render(request, self.template_name, context)
 
+
