@@ -21,6 +21,7 @@ from django.contrib.auth.views import (
     PasswordResetConfirmView,
 )
 from .models import Profile
+from orders.models import Address as ShippingAddress
 from django.contrib.auth import update_session_auth_hash
 from follow.models import Follow
 
@@ -165,6 +166,9 @@ class ProfileAndUpdateView(LoginRequiredMixin, View):
         password_change_form = CustomPasswordChangeForm(request.user)
         followings = Follow.objects.filter(followed_by=request.user)
         followings_count = Follow.objects.filter(followed_by=request.user).count()
+
+        #address
+        address = ShippingAddress.objects.filter(user=request.user, address_type="Shipping Address")
         context = {
             'user_form':user_form,
             'profile':profile,
@@ -172,6 +176,7 @@ class ProfileAndUpdateView(LoginRequiredMixin, View):
             'password_change_form':password_change_form,
             'followings':followings,
             'followings_count':followings_count,
+            'address': address,
         }
         return render(request, self.template_name, context)
     
