@@ -1,7 +1,8 @@
 from django.db import models
 from shop.models import Book
 from django.contrib.auth import get_user_model
-from .city import CITY_CHOICES
+from .Nepal import CITY_CHOICES, PROVINCE_CHOICES
+from .countries import COUNTRIES_CHOOSE
 # Create your models here.
 class Cart(models.Model):
     user = models.ForeignKey(get_user_model(), on_delete=models.SET_NULL, related_name='users', null=True, blank=True)
@@ -31,7 +32,9 @@ class Address(models.Model):
         BILLING_ADDRESS = "Billing Address", 'Billing Address'
     user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
     street_address = models.CharField(max_length=100)
+    provinvce = models.CharField(max_length=50, choices=PROVINCE_CHOICES.choices, default=PROVINCE_CHOICES.BAGMATI)
     city = models.CharField(max_length=20, choices=CITY_CHOICES.choices, default=CITY_CHOICES.KATHMANDU)
+    country = models.CharField(max_length=50, choices=COUNTRIES_CHOOSE.choices, default=COUNTRIES_CHOOSE.Nepal)
     zip_code = models.CharField(max_length=50)
     address_type = models.CharField(max_length=20, choices=ADDRESS_TYPE.choices, default=ADDRESS_TYPE.SHIPPING_ADDRESS)
     default = models.BooleanField(default=False)
@@ -52,4 +55,14 @@ class Order(models.Model):
 
     cart = models.OneToOneField(Cart, on_delete=models.CASCADE, related_name='order_placed')
     ordered_by = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
-    
+    shipping_address = models.ForeignKey(Address, related_name='shipping_address', on_delete=models.SET_NULL, null=True, blank=True)
+    billing_address = models.ForeignKey(Address, related_name='billing_address', on_delete=models.SET_NULL, null=True, blank=True)
+    subtotal = models.PositiveIntegerField()
+    discount = models.PositiveIntegerField()
+    total = models.PositiveIntegerField()
+    order_status = models.CharField(max_length=20, choices=ORDER_STATUS.choices)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
+    def __str__(self):
+        return f"Order: {str(self.id)}"
