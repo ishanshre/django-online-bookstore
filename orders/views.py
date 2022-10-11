@@ -7,7 +7,7 @@ from .models import Cart,CartItem, Address
 from .forms import CheckOutForm, ShippingAddressForm, ShippingAddressDeleteForm
 from django.contrib import messages
 from django.urls import reverse_lazy
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 # Create your views here.
 class AddToCartView(View):
     def get(self, request, *args, **kwargs):
@@ -129,7 +129,7 @@ class CheckoutView(LoginRequiredMixin, CreateView):
         return context
 
 
-class ShippingAddressDetailView(LoginRequiredMixin, View):
+class ShippingAddressDetailView(LoginRequiredMixin,UserPassesTestMixin, View):
     template_name = 'shipping_address.html'
     def get(self, request, *args, **kwargs):
         address_slug = self.kwargs['slug']
@@ -168,3 +168,7 @@ class ShippingAddressDetailView(LoginRequiredMixin, View):
             'form':form,
         }
         return render(request, self.template_name, context)
+    
+    def test_func(self):
+        address = Address.objects.get(slug=self.kwargs['slug'])
+        return address.user == self.request.user
