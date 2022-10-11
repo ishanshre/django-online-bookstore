@@ -30,7 +30,7 @@ class Address(models.Model):
     class ADDRESS_TYPE(models.TextChoices):
         SHIPPING_ADDRESS = "Shipping Address", 'Shipping Address'
         BILLING_ADDRESS = "Billing Address", 'Billing Address'
-    user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
+    user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, related_name="address")
     street_address = models.CharField(max_length=100)
     provinvce = models.CharField(max_length=50, choices=PROVINCE_CHOICES.choices, default=PROVINCE_CHOICES.BAGMATI)
     city = models.CharField(max_length=20, choices=CITY_CHOICES.choices, default=CITY_CHOICES.KATHMANDU)
