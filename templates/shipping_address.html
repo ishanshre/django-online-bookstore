@@ -5,8 +5,22 @@
 <a href="{% url 'shop:index' %}">Home</a>
     <h3>Shipping Address</h3>
     <h4>Street Address: {{ shipping_address.street_address }}</h4>
-    <h4>Province: {{ shipping_address.provinvce }}</h4>
+    <h4>Province: {{ shipping_address.province }}</h4>
     <h4>City: {{ shipping_address.city }}</h4>
     <h4>Country: {{ shipping_address.country }}</h4>
     <h4>Zip code : {{ shipping_address.zip_code }}</h4>
+
+    <br><hr>
+    <h1>Update Shipping Address</h1>
+    <form action="" method="post">
+        {% csrf_token %}
+        {{ update_form.as_p }}
+        <input type="submit" value="Update">
+    </form>
+    <hr>
+    <form action="" method="post">
+        {% csrf_token %}
+        {{ delete_form.as_p }}
+        <input type="submit" value="Delete">
+    </form>
 {% endblock body %}

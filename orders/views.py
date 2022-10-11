@@ -1,10 +1,10 @@
 from django.shortcuts import render, redirect
 from django.views import View
 from django.views.generic import TemplateView, DetailView
-from django.views.generic.edit import CreateView
+from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from shop.models import Book
 from .models import Cart,CartItem, Address
-from .forms import CheckOutForm
+from .forms import CheckOutForm, ShippingAddressForm, ShippingAddressDeleteForm
 from django.contrib import messages
 from django.urls import reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -129,7 +129,42 @@ class CheckoutView(LoginRequiredMixin, CreateView):
         return context
 
 
-class ShippingAddressDetailView(LoginRequiredMixin, DetailView):
-    model = Address
+class ShippingAddressDetailView(LoginRequiredMixin, View):
     template_name = 'shipping_address.html'
-    context_object_name = 'shipping_address'
+    def get(self, request, *args, **kwargs):
+        address_slug = self.kwargs['slug']
+        shipping_address = Address.objects.get(slug=address_slug)
+        update_form = ShippingAddressForm(instance=shipping_address)
+        delete_form = ShippingAddressDeleteForm()
+        context = {
+            'shipping_address': shipping_address,
+            'update_form':update_form,
+            'delete_form':delete_form,
+        }
+        return render(request, self.template_name, context)
+
+    def post(self, request, *args, **kwargs):
+        address_slug = self.kwargs['slug']
+        address_instance = Address.objects.get(slug=address_slug)
+        if 'update_address' in request.POST:
+            update_form = ShippingAddressForm(request.POST, instance=address_instance)
+            if udpate_form.is_valid():
+                update_form.save()
+                messages.success(request, "Shipping address updated")
+                return redirect('orders:shipping_address_detail', address_slug)
+            else:
+                messages.error(request, "Failed to update! Please try again")
+                return redirect('orders:shipping_address_detail', address_slug)
+        if 'delete_address' in request.POST:
+            delete_form = ShippingAddressDeleteForm(request.POST)
+            if delete_form.is_valid():
+                address_instance.delete()
+                messages.success(request, "Shipping Address Deleted Successfull")
+                return redirect("accounts:profile_and_update")
+            else:
+                messages.error(request, "Detete Failed! Please Try Again")
+                return redirect('orders:shipping_address_detail', address_slug)
+        context = {
+            'form':form,
+        }
+        return render(request, self.template_name, context)

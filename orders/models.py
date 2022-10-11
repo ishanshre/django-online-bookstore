@@ -35,7 +35,7 @@ class Address(models.Model):
         BILLING_ADDRESS = "Billing Address", 'Billing Address'
     user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, related_name="order_address")
     street_address = models.CharField(max_length=100)
-    provinvce = models.CharField(max_length=50, choices=PROVINCE_CHOICES.choices, default=PROVINCE_CHOICES.BAGMATI)
+    province = models.CharField(max_length=50, choices=PROVINCE_CHOICES.choices, default=PROVINCE_CHOICES.BAGMATI)
     city = models.CharField(max_length=20, choices=CITY_CHOICES.choices, default=CITY_CHOICES.KATHMANDU)
     country = models.CharField(max_length=50, choices=COUNTRIES_CHOOSE.choices, default=COUNTRIES_CHOOSE.Nepal)
     zip_code = models.CharField(max_length=50)
