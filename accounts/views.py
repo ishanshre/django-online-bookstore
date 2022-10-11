@@ -160,8 +160,8 @@ class UserPasswordResetConfirmView(SuccessMessageMixin, PasswordResetConfirmView
 class ProfileAndUpdateView(LoginRequiredMixin, View):
     template_name = 'profile_update.html'
     def get(self, request, *args, **kwargs):
-        user_form = CustomUserChangeForm(instance = request.user)
         profile = Profile.objects.get(user=request.user)
+        user_form = CustomUserChangeForm(instance = request.user)
         profile_form = ProfileForm(instance=request.user.profile)
         password_change_form = CustomPasswordChangeForm(request.user)
         followings = Follow.objects.filter(followed_by=request.user)
@@ -171,8 +171,8 @@ class ProfileAndUpdateView(LoginRequiredMixin, View):
 
 
         context = {
-            'user_form':user_form,
             'profile':profile,
+            'user_form':user_form,
             'profile_form':profile_form,
             'password_change_form':password_change_form,
             'followings':followings,
@@ -183,40 +183,48 @@ class ProfileAndUpdateView(LoginRequiredMixin, View):
     
     def post(self, request, *args, **kwargs):
         if "profile_update" in request.POST:
+            profile = Profile.objects.get(user=request.user)
             user_form = CustomUserChangeForm(request.POST, instance = request.user)
             profile_form = ProfileForm(request.POST, request.FILES, instance = request.user.profile)
             password_change_form = CustomPasswordChangeForm(request.user)
+            followings = Follow.objects.filter(followed_by=request.user)
+            followings_count = Follow.objects.filter(followed_by=request.user).count()
+            #address
+            address = ShippingAddressForm()
             if user_form.is_valid() and profile_form.is_valid():
                 user_form.save()
                 profile_form.save()
                 messages.success(request, 'Profile Updated')
                 return redirect('accounts:profile_and_update')
-            else:
-                user_form = CustomUserChangeForm(instance = request.user)
-                profile_form = ProfileForm(instance=request.user.profile)
-                messages.error(request, 'Failed! Try Again')
+
             context = {
-                'user_form':user_form,
                 'profile':profile,
+                'user_form':user_form,
                 'profile_form':profile_form,
                 'password_change_form':password_change_form,
+                'password_change_form':password_change_form,
+                'followings':followings,
+                'followings_count':followings_count,
+                'address':address,
             }
             return render(request, self.template_name, context)
         if "change_password" in request.POST:
-            user_form = CustomUserChangeForm(instance = request.user)
             profile = Profile.objects.get(user=request.user)
+            user_form = CustomUserChangeForm(instance = request.user)            
             profile_form = ProfileForm(instance=request.user.profile)
             password_change_form = CustomPasswordChangeForm(request.user, request.POST)
+            followings = Follow.objects.filter(followed_by=request.user)
+            followings_count = Follow.objects.filter(followed_by=request.user).count()
+            #address
+            address = ShippingAddressForm()
             if password_change_form.is_valid():
                 user = password_change_form.save()
                 update_session_auth_hash(request, user)
                 messages.success(request, 'Password Change Successfull')
                 return redirect('accounts:profile_and_update')
-            else:
-                password_change_form = CustomPasswordChangeForm(request.user)
             context = {
-                'user_form':user_form,
                 'profile':profile,
+                'user_form':user_form,
                 'profile_form':profile_form,
                 'password_change_form':password_change_form,
             }
@@ -226,6 +234,8 @@ class ProfileAndUpdateView(LoginRequiredMixin, View):
             profile = Profile.objects.get(user=request.user)
             profile_form = ProfileForm(instance=request.user.profile)
             password_change_form = CustomPasswordChangeForm(request.user, request.POST)
+            followings = Follow.objects.filter(followed_by=request.user)
+            followings_count = Follow.objects.filter(followed_by=request.user).count()
             address = ShippingAddressForm(request.POST)
             if address.is_valid():
                 a = address.save(commit=False)
@@ -233,14 +243,14 @@ class ProfileAndUpdateView(LoginRequiredMixin, View):
                 a.save()
                 messages.success(request, "New Shipping Address Added Successfully")
                 return redirect('accounts:profile_and_update')
-            else:
-                address = ShippingAddressForm()
-                messages.error(request, "Failed to Add New Shipping Address")   
+            
             context = {
-                'user_form':user_form,
                 'profile':profile,
+                'user_form':user_form,
                 'profile_form':profile_form,
                 'password_change_form':password_change_form,
+                'followings':followings,
+                'followings_count':followings_count,
                 'address':address,
             }
             return render(request, self.template_name, context)
