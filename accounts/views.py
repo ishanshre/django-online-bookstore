@@ -25,7 +25,7 @@ from .models import Profile
 from django.contrib.auth import update_session_auth_hash
 from follow.models import Follow
 from orders.views import CartMixin
-
+from orders.models import Order
 # Create your views here.
 
 

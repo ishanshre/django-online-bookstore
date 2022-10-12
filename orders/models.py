@@ -30,9 +30,9 @@ class Address(models.Model):
     zip_code = models.CharField(max_length=50)
     address_type = models.CharField(max_length=20, choices=ADDRESS_TYPE.choices, default=ADDRESS_TYPE.SHIPPING_ADDRESS)
     default = models.BooleanField(default=False)
-    slug = AutoSlugField(_('slug'), max_length=100, unique=True, populate_from=('street_address','province',), editable=True)
+    slug = AutoSlugField(_('slug'), max_length=100, unique=True, populate_from=('user.username','street_address','province',), editable=True)
     def save(self, *args, **kwargs):
-        self.slug = slugify(self.street_address+' '+self.province)
+        self.slug = slugify(self.user.username+' '+self.street_address+' '+self.province)
         return super().save(*args, **kwargs)
     def __str__(self):
         return self.street_address
