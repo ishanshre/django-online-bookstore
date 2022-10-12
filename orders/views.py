@@ -226,7 +226,14 @@ class CheckoutView(LoginRequiredMixin, CartMixin, CreateView):
                 cart = Cart.objects.get(id=cart_id)
         context['cart'] = cart
         return context
-    
+    '''
+    Using get_from_kwargs method we pass the logged in user to the checkout form
+    '''
+    def get_form_kwargs(self):
+        kwargs = super(CheckoutView, self).get_form_kwargs()
+        kwargs['user'] = self.request.user
+        return kwargs
+
     def form_valid(self, form):
         exist_cart = self.request.user.users.last()
         if exist_cart:

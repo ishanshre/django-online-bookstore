@@ -17,6 +17,7 @@ class Cart(models.Model):
         return f"Cart: {str(self.id)}"
 
 
+
 class Address(models.Model):
     class ADDRESS_TYPE(models.TextChoices):
         SHIPPING_ADDRESS = "Shipping Address", 'Shipping Address'
@@ -30,7 +31,6 @@ class Address(models.Model):
     address_type = models.CharField(max_length=20, choices=ADDRESS_TYPE.choices, default=ADDRESS_TYPE.SHIPPING_ADDRESS)
     default = models.BooleanField(default=False)
     slug = AutoSlugField(_('slug'), max_length=100, unique=True, populate_from=('street_address','province',), editable=True)
-
     def save(self, *args, **kwargs):
         self.slug = slugify(self.street_address+' '+self.province)
         return super().save(*args, **kwargs)
