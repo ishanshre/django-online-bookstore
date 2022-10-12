@@ -127,7 +127,22 @@ class CheckoutView(LoginRequiredMixin, CreateView):
             cart = Cart.objects.get(id=cart_id)
         context['cart'] = cart
         return context
-
+    
+    def form_valid(self, form):
+        cart_id = self.request.session.get("cart_id", None)
+        if cart_id:
+            cart = Cart.objects.get(id=cart_id)
+            form.instance.cart = cart
+            form.instance.ordered_by = self.request.user
+            form.instance.subtotal = cart.total
+            form.instance.discount = 0
+            form.instance.total = cart.total
+            form.instance.order_status = "Order Received"
+            del self.request.session['cart_id']
+            messages.success(self.request, 'Checkout Successfull')
+        else:
+            return redirect("shop:index")
+        return super().form_valid(form)
 
 class ShippingAddressDetailView(LoginRequiredMixin,UserPassesTestMixin, View):
     template_name = 'shipping_address.html'

@@ -69,7 +69,9 @@ class Book(models.Model):
     language = models.ManyToManyField(Language)
     is_active = models.BooleanField(default=True)
     stock = models.PositiveIntegerField(validators=[MinValueValidator(0), MaxValueValidator(50)])
+    marked_price = models.PositiveIntegerField(default=0)
     price = models.FloatField(default=0)
+    discount = models.FloatField(default=0)
     objects = models.Manager()
     published = PublishedManager()
 

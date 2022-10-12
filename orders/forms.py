@@ -6,7 +6,7 @@ from .models import Order, Address
 class CheckOutForm(forms.ModelForm):
     class Meta:
         model = Order
-        fields = ['ordered_by','shipping_address',]
+        fields = ['shipping_address',]
 
 
 class ShippingAddressForm(forms.ModelForm):

@@ -12,7 +12,6 @@
             <th>Rate</th>
             <th>Quantity</th>
             <th>Subtotal</th>
-            <th>Action</th>
         </tr>
     </thead>
     <tbody>
@@ -23,11 +22,6 @@
                 <td>{{ item.rate }}</td>
                 <td>{{ item.quantity }}</td>
                 <td>{{ item.subtotal }}</td>
-                <td>
-                    <a href="{% url 'orders:cart_manage_view' item.id %}?action=inc">+</a>
-                    <a href="{% url 'orders:cart_manage_view' item.id %}?action=dec">-</a>
-                    <a href="{% url 'orders:cart_manage_view' item.id %}?action=rem">x</a>
-                </td>
             </tr>
         {% endfor %}
             <tr>
