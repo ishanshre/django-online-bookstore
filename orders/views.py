@@ -238,9 +238,13 @@ class CheckoutView(LoginRequiredMixin, CartMixin, CreateView):
             form.instance.total = cart.total
             form.instance.order_status = "Order Received"
             form.instance.save()
+            #now linking cartitems order to order model
+            for items in cart.cartitems.all():
+                items.order = form.instance
+                items.save()
             session_id =  self.request.session.get('cart_id')
-            del session_id
-            exist_cart.delete()
+            del session_id # deleting cart session
+            exist_cart.delete() # deleting existing cart
             messages.success(self.request, 'Checkout Successfull')
             return redirect('shop:index')
         else:
