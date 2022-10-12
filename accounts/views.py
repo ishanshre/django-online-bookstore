@@ -27,6 +27,7 @@ from follow.models import Follow
 from orders.views import CartMixin
 from orders.models import Order
 from django.db.models import Q
+from shop.models import Book
 # Create your views here.
 
 
@@ -178,6 +179,8 @@ class ProfileAndUpdateView(LoginRequiredMixin, View):
         )
         orders_delivered = orders_all.filter(order_status="Order Completed")
 
+        #wishlist
+        books = Book.published.filter(users_wishlist=request.user)
         context = {
             'profile':profile,
             'user_form':user_form,
@@ -189,6 +192,7 @@ class ProfileAndUpdateView(LoginRequiredMixin, View):
             'orders_all':orders_all,
             'orders_pending':orders_pending,
             'orders_delivered':orders_delivered,
+            'books':books,
         }
         return render(request, self.template_name, context)
     

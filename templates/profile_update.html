@@ -112,6 +112,17 @@
     </tbody>
 </table>
 
+<hr>
+<h3>WishList</h3>
+<ul>
+    {% for book in books %}
+    <li>
+        {{ book.title }}
+        <img src="{{ book.book_profile_image.url }}" alt="">
+    </li>
+    {% endfor %}
+</ul>
+
 
 <hr>
 {% if not profile.email_confirmed %}

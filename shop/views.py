@@ -1,12 +1,14 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404, redirect
 from django.views import generic, View
 from .models import (
     Genre, 
     Book,
     Author,
 )
+from django.contrib.auth.mixins import LoginRequiredMixin
 from follow.models import Follow
 from orders.views import CartMixin
+from django.contrib import messages
 # Create your views here.
 
 
@@ -57,3 +59,15 @@ class GenreBookView(CartMixin, generic.TemplateView):
         genre = Genre.objects.get(id=self.kwargs['pk'])
         context['genre'] = genre
         return context
+
+class AddToWishlist(LoginRequiredMixin, View):
+    def get(self, request, *args, **kwargs):
+        book = get_object_or_404(Book, id=self.kwargs['book_id'])
+        if book.users_wishlist.filter(id=request.user.id):
+            book.users_wishlist.remove(request.user)
+            messages.success(self.request, "Successfully Removed From Wishlist")
+            return redirect('shop:index')
+        else:
+            book.users_wishlist.add(request.user)
+            messages.success(self.request, "Successfully Added to Wishlist")
+            return redirect('shop:index')
