@@ -6,10 +6,11 @@ from .models import (
     Author,
 )
 from follow.models import Follow
+from orders.views import CartMixin
 # Create your views here.
 
 
-class IndexView(generic.TemplateView):
+class IndexView(CartMixin, generic.TemplateView):
     template_name = 'index.html'
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
@@ -20,7 +21,7 @@ class IndexView(generic.TemplateView):
         return context
 
 
-class BookDetailView(generic.DetailView):
+class BookDetailView(CartMixin, generic.DetailView):
     model = Book
     context_object_name = 'book'
     template_name = 'book_detail.html'
@@ -31,7 +32,7 @@ class BookDetailView(generic.DetailView):
 #     context_object_name = 'author'
 #     template_name = 'author_detail.html'
 
-class AuthorDetailView(View):
+class AuthorDetailView(CartMixin, View):
     template_name = 'author_detail.html'
     def get(self, request, *args, **kwargs):
         author = Author.objects.get(slug=self.kwargs['slug'])
@@ -49,7 +50,7 @@ class AuthorDetailView(View):
         }
         return render(request, self.template_name, context)
 
-class GenreBookView(generic.TemplateView):
+class GenreBookView(CartMixin, generic.TemplateView):
     template_name = 'book_by_genre.html'
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)

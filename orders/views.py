@@ -9,7 +9,20 @@ from django.contrib import messages
 from django.urls import reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 # Create your views here.
-class AddToCartView(View):
+
+class CartMixin(object):
+    def dispatch(self, request, *args, **kwargs):
+        cart_id = request.session.get('cart_id', None)
+        if cart_id:
+            cart = Cart.objects.get(id = cart_id)
+            if request.user.is_authenticated:
+                cart.user = request.user
+                cart.save()
+        return super().dispatch(request, *args, **kwargs)
+
+
+
+class AddToCartView(CartMixin, View):
     def get(self, request, *args, **kwargs):
         #get product id
         book_id = self.kwargs['book_id']
@@ -60,7 +73,7 @@ class AddToCartView(View):
         return redirect('shop:index')
 
 
-class CartView(TemplateView):
+class CartView(CartMixin, TemplateView):
     template_name = 'cart_view.html'
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -73,7 +86,7 @@ class CartView(TemplateView):
         return context
 
 
-class CartManageView(View):
+class CartManageView(CartMixin, View):
     def get(self, request, *args, **kwargs):
         cart_item_id = self.kwargs['cart_item_id']
         action = request.GET.get('action')
@@ -103,7 +116,7 @@ class CartManageView(View):
         return redirect('orders:cart_view')
 
 
-class CartEmptyView(View):
+class CartEmptyView(CartMixin, View):
     def get(self, request, *args, **kwargs):
         cart_id = request.session.get('cart_id', None)
         if cart_id:
@@ -114,7 +127,7 @@ class CartEmptyView(View):
         return redirect("orders:cart_view")
 
 
-class CheckoutView(LoginRequiredMixin, CreateView):
+class CheckoutView(LoginRequiredMixin, CartMixin, CreateView):
     template_name = 'checkout.html'
     form_class = CheckOutForm
     success_url = reverse_lazy('shop:index')
@@ -144,7 +157,7 @@ class CheckoutView(LoginRequiredMixin, CreateView):
             return redirect("shop:index")
         return super().form_valid(form)
 
-class ShippingAddressDetailView(LoginRequiredMixin,UserPassesTestMixin, View):
+class ShippingAddressDetailView(LoginRequiredMixin,UserPassesTestMixin, CartMixin, View):
     template_name = 'shipping_address.html'
     def get(self, request, *args, **kwargs):
         address_slug = self.kwargs['slug']

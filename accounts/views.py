@@ -24,7 +24,7 @@ from django.contrib.auth.views import (
 from .models import Profile
 from django.contrib.auth import update_session_auth_hash
 from follow.models import Follow
-
+from orders.views import CartMixin
 
 # Create your views here.
 
@@ -103,7 +103,7 @@ class ResendActivateAccounts(LoginRequiredMixin, View):
         messages.success(request, 'Activation link has been sent to your email address')
         return redirect('shop:index')
 
-class UserLoginView(messages.views.SuccessMessageMixin, LoginView):
+class UserLoginView(CartMixin, messages.views.SuccessMessageMixin, LoginView):
     form_class = UserLoginForm
     template_name = 'login.html'
     success_message = 'User Login Successfull'
