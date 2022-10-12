@@ -29,41 +29,84 @@ class AddToCartView(CartMixin, View):
         #get product
         book_object = Book.objects.get(id=book_id)
         #check if cart exist 
-        cart_id = self.request.session.get("cart_id", None)
-        if cart_id:
-            cart = Cart.objects.get(id=cart_id)
-            items_in_cart = cart.cartitems.filter(book=book_object)
-            if items_in_cart.exists():
-                cart_item = items_in_cart.last()
-                cart_item.quantity += 1
-                cart_item.subtotal += book_object.price
-                cart_item.save()
-                cart.total += book_object.price
-                cart.save()
-                messages.success(request, 'Item Added To Cart')
-                return redirect('shop:index')
-            else:
-                cart_item = CartItem.objects.create(
-                    cart = cart,
-                    book = book_object,
-                    rate = book_object.price,
-                    quantity=1,
-                    subtotal=book_object.price
-                )
-                cart.total += book_object.price
-                cart.save()
+        if self.request.user.is_authenticated:
+            exist_cart = request.user.users.last()
+            if exist_cart:
+                cart_id = exist_cart.id
+                if cart_id:
+                    cart = exist_cart
+                    items_in_cart = cart.cartitems.filter(book=book_object)
+                    if items_in_cart.exists():
+                        cart_item = items_in_cart.last()
+                        cart_item.quantity += 1
+                        cart_item.subtotal += book_object.price
+                        cart_item.save()
+                        cart.total += book_object.price
+                        cart.save()
+                        messages.success(request, 'Item Added To Cart')
+                        return redirect('shop:index')
+                    else:
+                        cart_item = CartItem.objects.create(
+                            cart = cart,
+                            book = book_object,
+                            rate = book_object.price,
+                            quantity=1,
+                            subtotal=book_object.price
+                        )
+                        cart.total += book_object.price
+                        cart.save()
+                        messages.success(request, 'Item Added To Cart')
+                        return redirect('shop:index')
+                else:
+                    cart_object = Cart.objects.create(total=0)
+                    exist_cart.id = cart_object.id
+                    cart_item = CartItem.objects.create(
+                            cart = cart_object,
+                            book = book_object,
+                            rate = book_object.price,
+                            quantity=1,
+                            subtotal=book_object.price
+                        )
+                cart_object.total += book_object.price
+                cart_object.save()
                 messages.success(request, 'Item Added To Cart')
                 return redirect('shop:index')
         else:
-            cart_object = Cart.objects.create(total=0)
-            self.request.session['cart_id'] = cart_object.id
-            cart_item = CartItem.objects.create(
-                    cart = cart_object,
-                    book = book_object,
-                    rate = book_object.price,
-                    quantity=1,
-                    subtotal=book_object.price
-                )
+            cart_id = self.request.session.get("cart_id", None)
+            if cart_id:
+                cart = Cart.objects.get(id=cart_id)
+                items_in_cart = cart.cartitems.filter(book=book_object)
+                if items_in_cart.exists():
+                    cart_item = items_in_cart.last()
+                    cart_item.quantity += 1
+                    cart_item.subtotal += book_object.price
+                    cart_item.save()
+                    cart.total += book_object.price
+                    cart.save()
+                    messages.success(request, 'Item Added To Cart')
+                    return redirect('shop:index')
+                else:
+                    cart_item = CartItem.objects.create(
+                        cart = cart,
+                        book = book_object,
+                        rate = book_object.price,
+                        quantity=1,
+                        subtotal=book_object.price
+                    )
+                    cart.total += book_object.price
+                    cart.save()
+                    messages.success(request, 'Item Added To Cart')
+                    return redirect('shop:index')
+            else:
+                cart_object = Cart.objects.create(total=0)
+                self.request.session['cart_id'] = cart_object.id
+                cart_item = CartItem.objects.create(
+                        cart = cart_object,
+                        book = book_object,
+                        rate = book_object.price,
+                        quantity=1,
+                        subtotal=book_object.price
+                    )
             cart_object.total += book_object.price
             cart_object.save()
             messages.success(request, 'Item Added To Cart')
@@ -77,11 +120,20 @@ class CartView(CartMixin, TemplateView):
     template_name = 'cart_view.html'
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        cart_id = self.request.session.get('cart_id', None)
-        if cart_id:
-            cart = Cart.objects.get(id=cart_id)
+        if self.request.user.is_authenticated:
+            exist_cart = self.request.user.users.last()
+            if exist_cart:
+                cart = exist_cart
+            else:
+                cart_id = self.request.session.get('cart_id', None)
+                cart = None
+                if cart_id:
+                    cart = Cart.objects.get(id=cart_id)
         else:
+            cart_id = self.request.session.get('cart_id', None)
             cart = None
+            if cart_id:
+                cart = Cart.objects.get(id=cart_id)
         context['cart'] = cart 
         return context
 
@@ -118,44 +170,96 @@ class CartManageView(CartMixin, View):
 
 class CartEmptyView(CartMixin, View):
     def get(self, request, *args, **kwargs):
-        cart_id = request.session.get('cart_id', None)
-        if cart_id:
-            cart = Cart.objects.get(id=cart_id)
-            cart.cartitems.all().delete()
-            cart.total = 0
-            cart.save()
+        if request.user.is_authenticated:
+            exist_cart = request.user.users.last()
+            if exist_cart:
+                cart_id = exist_cart.id
+                if cart_id:
+                    cart = exist_cart
+                    cart.cartitems.all().delete()
+                    cart.total = 0
+                    cart.save()
+                return redirect("orders:cart_view")
+            else:
+                cart_id = request.session.get('cart_id', None)
+                if cart_id:
+                    cart = Cart.objects.get(id=cart_id)
+                    cart.cartitems.all().delete()
+                    cart.total = 0
+                    cart.save()
+                return redirect("orders:cart_view")
+        else:
+            cart_id = request.session.get('cart_id', None)
+            if cart_id:
+                cart = Cart.objects.get(id=cart_id)
+                cart.cartitems.all().delete()
+                cart.total = 0
+                cart.save()
+            return redirect("orders:cart_view")
         return redirect("orders:cart_view")
 
-
-class CheckoutView(LoginRequiredMixin, CartMixin, CreateView):
+class CheckoutView(LoginRequiredMixin, CartMixin, UserPassesTestMixin, CreateView):
     template_name = 'checkout.html'
     form_class = CheckOutForm
     success_url = reverse_lazy('shop:index')
 
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
-        cart_id = self.request.session.get('cart_id', None)
-        cart = None
-        if cart_id:
-            cart = Cart.objects.get(id=cart_id)
+        exist_cart = self.request.user.users.last()
+        if exist_cart:
+            cart_id = exist_cart.id
+            cart = None
+            if cart_id:
+                cart = exist_cart
+        else:
+            cart_id = self.request.session.get('cart_id', None)
+            cart = None
+            if cart_id:
+                cart = Cart.objects.get(id=cart_id)
         context['cart'] = cart
         return context
     
     def form_valid(self, form):
-        cart_id = self.request.session.get("cart_id", None)
-        if cart_id:
-            cart = Cart.objects.get(id=cart_id)
-            form.instance.cart = cart
-            form.instance.ordered_by = self.request.user
-            form.instance.subtotal = cart.total
-            form.instance.discount = 0
-            form.instance.total = cart.total
-            form.instance.order_status = "Order Received"
-            del self.request.session['cart_id']
-            messages.success(self.request, 'Checkout Successfull')
+        exist_cart = self.request.user.users.last()
+        if exist_cart:
+            cart_id = exist_cart.id
+            cart = None
+            if cart_id:
+                cart = exist_cart
+                form.instance.cart = cart
+                form.instance.ordered_by = self.request.user
+                form.instance.subtotal = cart.total
+                form.instance.discount = 0
+                form.instance.total = cart.total
+                form.instance.order_status = "Order Received"
+                exist_cart.delete()
+                messages.success(self.request, 'Checkout Successfull')
+            else:
+                return redirect('shop:index')
         else:
-            return redirect("shop:index")
+            cart_id = self.request.session.get("cart_id", None)
+            if cart_id:
+                cart = Cart.objects.get(id=cart_id)
+                form.instance.cart = cart
+                form.instance.ordered_by = self.request.user
+                form.instance.subtotal = cart.total
+                form.instance.discount = 0
+                form.instance.total = cart.total
+                form.instance.order_status = "Order Received"
+                del self.request.session['cart_id']
+                messages.success(self.request, 'Checkout Successfull')
+            else:
+                return redirect("shop:index")
         return super().form_valid(form)
+    def test_func(self):
+        exist_cart = self.request.user.users.last()
+        if exist_cart:
+            return exist_cart.user == self.request.user
+        else:
+            cart_id = self.request.session.get('cart_id')
+            if cart_id:
+                cart = Cart.objects.get(id=cart_id)
+                return cart.user == self.request.user
 
 class ShippingAddressDetailView(LoginRequiredMixin,UserPassesTestMixin, CartMixin, View):
     template_name = 'shipping_address.html'
