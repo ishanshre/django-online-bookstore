@@ -10,10 +10,27 @@
     </form>
     <h3>Author: <a href="{{ book.author.get_absolute_url }}">{{ book.author }}</a></h3>
     <h3>Publicished Date: {{ book.published_date }}</h3>
-    <h3>Genre: {{ book.genre }}</h3>
-    <h3>Language: {{ book.language }}</h3>
+    <h3>Genre: {% for genre in book.genre.all %}{{ genre }}{% endfor %}</h3>
+    <h3>Language: {% for language in book.language.all %}{{ language }}{% endfor %}</h3>
     <h3>Publisher: {{ book.publisher }}</h3>
     <h3>Description:</h3>
     <p>{{ book.description }}</p>
 
+<hr>
+<h1>Review</h1>
+{% for review in book.book_reviews.all %}
+    <h4>Rating: {{ review.rating }}</h4>
+    <h4>Comment: {{ review.comment }}</h4>
+    <h5>By {{ review.user.username|title }}</h5>
+    <br>
+{% endfor %}
+<hr>
+{% if not exist %}
+<h1>Add Review</h1>
+<form action="" method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <input type="submit" value="Add Review">
+</form>
+{% endif %}
 {% endblock body %}

@@ -88,8 +88,9 @@ class Book(models.Model):
 
 class Review(models.Model):
     rating = models.PositiveIntegerField(validators=[MinValueValidator(1), MaxValueValidator(5)])
-    user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, related_name='review')
-    book = models.ForeignKey(Book, on_delete=models.CASCADE)
+    comment = models.CharField(max_length=500, null=True, blank=True)
+    user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, related_name='user_reviews')
+    book = models.ForeignKey(Book, on_delete=models.CASCADE, related_name='book_reviews')
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
     is_active = models.BooleanField(default=True)
@@ -98,7 +99,7 @@ class Review(models.Model):
         ordering = ['-created']
 
     def __str__(self):
-        return self.rating
+        return f"Rating: {str(self.rating)}"
 
 
 class BookImages(models.Model):
