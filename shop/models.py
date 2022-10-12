@@ -72,6 +72,7 @@ class Book(models.Model):
     marked_price = models.PositiveIntegerField(default=0)
     price = models.FloatField(default=0)
     discount = models.FloatField(default=0)
+    users_wishlist = models.ManyToManyField(get_user_model(), related_name='user_wishlist', blank=True)
     objects = models.Manager()
     published = PublishedManager()
 
