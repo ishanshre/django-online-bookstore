@@ -265,3 +265,6 @@ class ProfileAndUpdateView(LoginRequiredMixin, View):
                 'address':address,
             }
             return render(request, self.template_name, context)
+
+
+    

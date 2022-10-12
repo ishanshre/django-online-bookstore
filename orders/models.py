@@ -64,6 +64,8 @@ class Order(models.Model):
     def __str__(self):
         return f"Order: {str(self.id)}"
 
+    def get_absolute_url(self):
+        return reverse('orders:order_detail', kwargs={'pk':self.pk})
 
 class CartItem(models.Model):
     cart = models.ForeignKey(Cart, on_delete=models.SET_NULL, related_name='cartitems', null=True)

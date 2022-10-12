@@ -50,7 +50,7 @@
     <tbody>
         {% for order in orders_all %}
             <tr>
-                <td>{{ order.id }}</td>
+                <td><a href="{{ order.get_absolute_url }}">#Order{{ order.id }}</a></td>
                 <td><ul>{% for items in order.orderitems.all %} <li>{{ items }}</li>{% endfor %}</ul></td>
                 <td>{{ order.order_status }}</td>
                 <td>{{ order.shipping_address }}</td>
@@ -76,7 +76,7 @@
     <tbody>
         {% for order in orders_pending %}
             <tr>
-                <td>{{ order.id }}</td>
+                <td><a href="{{ order.get_absolute_url }}">#Order{{ order.id }}</a></td>
                 <td><ul>{% for items in order.orderitems.all %} <li>{{ items }}</li>{% endfor %}</ul></td>
                 <td>{{ order.order_status }}</td>
                 <td>{{ order.shipping_address }}</td>
@@ -102,7 +102,7 @@
     <tbody>
         {% for order in orders_delivered %}
             <tr>
-                <td>{{ order.id }}</td>
+                <td><a href="{{ order.get_absolute_url }}">#Order{{ order.id }}</a></td>
                 <td><ul>{% for items in order.orderitems.all %} <li>{{ items }}</li>{% endfor %}</ul></td>
                 <td>{{ order.order_status }}</td>
                 <td>{{ order.shipping_address }}</td>

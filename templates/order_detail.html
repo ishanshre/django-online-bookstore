@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% block title %}{{ book.title }}{% endblock title %}
+{% block body %}
+<h1>Your Order Details</h1>
+<h3>Order ID:   &emsp13; ORDER#{{ order.id }}</h3>
+<h3>Order Items</h3>
+<ul>
+    {% for items in order.orderitems.all %}
+        <li>
+            <h4>Title: {{items.book.title}}</h4>
+            <img src="{{ items.book.book_profile_image.url }}">
+            <h4>Rate: {{ items.rate }}</h4>
+            <h4>Quantity: {{ items.quantity }}</h4>
+            <h4>Subtotal: {{ items.subtotal }}</h4>
+        </li>
+    {% endfor %}
+</ul>
+<h3>Order Status: &emsp13; {{ order.order_status }}</h3>
+<h3>Total Paymenet: {{ order.total }}</h3>
+<h3>Ordered Date: &emsp13; {{ order.created_at }}</h3>
+{% endblock body %}

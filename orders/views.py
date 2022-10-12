@@ -3,7 +3,7 @@ from django.views import View
 from django.views.generic import TemplateView, DetailView
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from shop.models import Book
-from .models import Cart,CartItem, Address
+from .models import Cart,CartItem, Address, Order
 from .forms import CheckOutForm, ShippingAddressForm, ShippingAddressDeleteForm
 from django.contrib import messages
 from django.urls import reverse_lazy
@@ -316,3 +316,11 @@ class ShippingAddressDetailView(LoginRequiredMixin,UserPassesTestMixin, CartMixi
     def test_func(self):
         address = Address.objects.get(slug=self.kwargs['slug'])
         return address.user == self.request.user
+
+class OrderDetail(LoginRequiredMixin, DetailView):
+    model = Order
+    context_object_name = 'order'
+    template_name = 'order_detail.html'
+
+    def get_queryset(self):
+        return Order.objects.filter(ordered_by=self.request.user)
