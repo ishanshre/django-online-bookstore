@@ -17,19 +17,6 @@ class Cart(models.Model):
         return f"Cart: {str(self.id)}"
 
 
-class CartItem(models.Model):
-    cart = models.ForeignKey(Cart, on_delete=models.CASCADE, related_name='cartitems')
-    book = models.ForeignKey(Book, on_delete=models.CASCADE, related_name='cartbooks')
-    rate = models.PositiveIntegerField()
-    quantity = models.PositiveIntegerField()
-    subtotal = models.PositiveIntegerField()
-
-    def __str__(self):
-        return f"Cart: {str(self.cart.id)} Cart Product: {str(self.id)}"
-
-
-
-
 class Address(models.Model):
     class ADDRESS_TYPE(models.TextChoices):
         SHIPPING_ADDRESS = "Shipping Address", 'Shipping Address'
@@ -63,7 +50,7 @@ class Order(models.Model):
         ORDER_CANCELED = "Order Canceled", 'Order Canceled'
     
 
-    cart = models.OneToOneField(Cart, on_delete=models.CASCADE, related_name='order_placed')
+    cart = models.OneToOneField(Cart, on_delete=models.SET_NULL, related_name='order_placed', null=True)
     ordered_by = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
     shipping_address = models.ForeignKey(Address, related_name='shipping_address', on_delete=models.SET_NULL, null=True, blank=True)
     billing_address = models.ForeignKey(Address, related_name='billing_address', on_delete=models.SET_NULL, null=True, blank=True)
@@ -76,3 +63,15 @@ class Order(models.Model):
 
     def __str__(self):
         return f"Order: {str(self.id)}"
+
+
+class CartItem(models.Model):
+    cart = models.ForeignKey(Cart, on_delete=models.SET_NULL, related_name='cartitems', null=True)
+    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='orderitems', null=True)
+    book = models.ForeignKey(Book, on_delete=models.CASCADE, related_name='cartbooks')
+    rate = models.PositiveIntegerField()
+    quantity = models.PositiveIntegerField()
+    subtotal = models.PositiveIntegerField()
+
+    def __str__(self):
+        return f"Book: {self.book.title}"
