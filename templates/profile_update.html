@@ -33,6 +33,87 @@
     <input type="submit" value="Add">
 </form>
 <hr>
+<br>
+<h2>Your Orders</h2>
+<hr>
+<h3>All Orders</h3>
+<table>
+    <thead>
+        <tr>
+            <th>Order Id</th>
+            <th>Order Items</th>
+            <th>Order Status</th>
+            <th>Shipping Address</th>
+            <th>Ordered Date</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for order in orders_all %}
+            <tr>
+                <td>{{ order.id }}</td>
+                <td><ul>{% for items in order.orderitems.all %} <li>{{ items }}</li>{% endfor %}</ul></td>
+                <td>{{ order.order_status }}</td>
+                <td>{{ order.shipping_address }}</td>
+                <td>{{ order.created_at }}</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+
+<hr>
+<h3>Pending Orders</h3>
+<table>
+    <thead>
+        <tr>
+            <th>Order Id</th>
+            <th>Order Items</th>
+            <th>Order Status</th>
+            <th>Shipping Address</th>
+            <th>Ordered Date</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for order in orders_pending %}
+            <tr>
+                <td>{{ order.id }}</td>
+                <td><ul>{% for items in order.orderitems.all %} <li>{{ items }}</li>{% endfor %}</ul></td>
+                <td>{{ order.order_status }}</td>
+                <td>{{ order.shipping_address }}</td>
+                <td>{{ order.created_at }}</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+
+<hr>
+<h3>Orders Delivered</h3>
+<table>
+    <thead>
+        <tr>
+            <th>Order Id</th>
+            <th>Order Items</th>
+            <th>Order Status</th>
+            <th>Shipping Address</th>
+            <th>Ordered Date</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for order in orders_delivered %}
+            <tr>
+                <td>{{ order.id }}</td>
+                <td><ul>{% for items in order.orderitems.all %} <li>{{ items }}</li>{% endfor %}</ul></td>
+                <td>{{ order.order_status }}</td>
+                <td>{{ order.shipping_address }}</td>
+                <td>{{ order.created_at }}</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+
+<hr>
 {% if not profile.email_confirmed %}
     <a href="{% url 'accounts:resend_activate' %}" type="button" role="button">Resend Activation Link</a>
 {% endif %}

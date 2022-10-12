@@ -50,7 +50,7 @@ class Order(models.Model):
         ORDER_CANCELED = "Order Canceled", 'Order Canceled'
     
 
-    cart = models.OneToOneField(Cart, on_delete=models.SET_NULL, related_name='order_placed', null=True)
+    cart = models.OneToOneField(Cart, on_delete=models.SET_NULL, related_name='order_placed', null=True, blank=True)
     ordered_by = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
     shipping_address = models.ForeignKey(Address, related_name='shipping_address', on_delete=models.SET_NULL, null=True, blank=True)
     billing_address = models.ForeignKey(Address, related_name='billing_address', on_delete=models.SET_NULL, null=True, blank=True)

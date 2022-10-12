@@ -26,6 +26,7 @@ from django.contrib.auth import update_session_auth_hash
 from follow.models import Follow
 from orders.views import CartMixin
 from orders.models import Order
+from django.db.models import Q
 # Create your views here.
 
 
@@ -168,7 +169,14 @@ class ProfileAndUpdateView(LoginRequiredMixin, View):
         followings_count = Follow.objects.filter(followed_by=request.user).count()
         #address
         address = ShippingAddressForm()
-
+        #orders
+        orders_all = Order.objects.filter(ordered_by=request.user)
+        orders_pending = orders_all.filter(
+            Q(order_status = "Order Received") |
+            Q(order_status = "Order Processing") |
+            Q(order_status = "On The Way") 
+        )
+        orders_delivered = orders_all.filter(order_status="Order Completed")
 
         context = {
             'profile':profile,
@@ -178,6 +186,9 @@ class ProfileAndUpdateView(LoginRequiredMixin, View):
             'followings':followings,
             'followings_count':followings_count,
             'address':address,
+            'orders_all':orders_all,
+            'orders_pending':orders_pending,
+            'orders_delivered':orders_delivered,
         }
         return render(request, self.template_name, context)
     
