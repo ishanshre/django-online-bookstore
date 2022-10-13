@@ -17,14 +17,19 @@ from django.core.exceptions import PermissionDenied
 # Create your views here.
 
 
-class IndexView(CartMixin, generic.TemplateView):
+class IndexView(CartMixin, generic.ListView):
     template_name = 'index.html'
+    models = Book
+    context_object_name = 'books'
+    paginate_by = 2
+
+    def get_queryset(self):
+        return Book.published.all()
+
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
         genres = Genre.objects.all()
-        books = Book.published.all()
         context['genres'] = genres
-        context['books'] = books
         return context
 
 class GetReview(generic.DetailView):
