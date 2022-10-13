@@ -14,13 +14,21 @@
         {% endif %}
         <a href="{% url 'shop:index' %}">Home</a>
     </div>
-
+<hr>
+<div>
+{% for gen in genres %}
+    <a href="{% url 'shop:book_by_genre' gen.pk %}">{{ gen|title }}</a> &emsp14;
+{% endfor %}
+</div>
     <hr>
     <div>
-        {% for book in genre.book_set.all %}
+        {% for book in books %}
             <img src="{{ book.book_profile_image.url }}" alt="book">
             <a href="{{ book.get_absolute_url }}">{{ book.title|title }}</a>
             <br><hr>
         {% endfor %}
+    </div>
+    <div>
+        {% include 'pagination.html' %}
     </div>
 {% endblock body %}

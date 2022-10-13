@@ -112,12 +112,20 @@ class AuthorDetailView(CartMixin, View):
         }
         return render(request, self.template_name, context)
 
-class GenreBookView(CartMixin, generic.TemplateView):
+class GenreBookView(CartMixin, generic.ListView):
+    model = Genre
     template_name = 'book_by_genre.html'
+    context_object_name = 'books'
+    paginate_by = 2
+
+    def get_queryset(self):
+        genre = Genre.objects.get(id=self.kwargs['pk'])
+        books = genre.book_set.all()
+        return books
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
-        genre = Genre.objects.get(id=self.kwargs['pk'])
-        context['genre'] = genre
+        genres = Genre.objects.all()
+        context['genres'] = genres
         return context
 
 class AddToWishlist(LoginRequiredMixin, View):
