@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     'contact.apps.ContactConfig',
     'follow.apps.FollowConfig',
     'orders.apps.OrdersConfig',
+    'company.apps.CompanyConfig',
 ]
 
 MIDDLEWARE = [
