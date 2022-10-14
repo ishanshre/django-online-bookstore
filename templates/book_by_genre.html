@@ -17,7 +17,7 @@
 <hr>
 <div>
 {% for gen in genres %}
-    <a href="{% url 'shop:book_by_genre' gen.pk %}">{{ gen|title }}</a> &emsp14;
+    <a href="{% url 'shop:book_by_genre' gen.slug %}">{{ gen|title }}</a> &emsp14;
 {% endfor %}
 </div>
     <hr>

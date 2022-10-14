@@ -24,7 +24,7 @@
     </div>
     <div>
         {% for genre in genres %}
-            <a href="{% url 'shop:book_by_genre' genre.pk %}">{{ genre|title }}</a> &emsp14;
+            <a href="{% url 'shop:book_by_genre' genre.slug %}">{{ genre|title }}</a> &emsp14;
         {% endfor %}
     </div>
     <hr>

@@ -118,7 +118,7 @@ class GenreBookView(CartMixin, generic.ListView):
     paginate_by = 2
 
     def get_queryset(self):
-        genre = Genre.objects.get(id=self.kwargs['pk'])
+        genre = Genre.objects.get(slug=self.kwargs['slug'])
         books = genre.book_set.all()
         return books
     def get_context_data(self, *args, **kwargs):
