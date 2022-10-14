@@ -151,7 +151,13 @@ class SearchView(View):
             Q(genre__genre__icontains=query) | Q(language__language__icontains=query) |
             Q(publisher__name__icontains=query) | Q(publisher__website__icontains=query)
         )
+        search_author = Author.objects.filter(
+            Q(first_name__icontains=query) |
+            Q(last_name__icontains=query) |
+            Q(description__icontains=query)
+        )
         context = {
             'search':search,
+            'search_author':search_author,
         }
         return render(request, self.template_name, context)

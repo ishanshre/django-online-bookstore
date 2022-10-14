@@ -44,7 +44,14 @@
             <br><hr>
         {% endfor %}
     </div>
+    {% if search_author %}
+    <br><hr>
     <div>
-        {% include 'pagination.html' %}
+        <h3>Authors</h3>
+        {% for author in search_author %}
+            <h4>{{ author.first_name }} {{ author.last_name }}</h4>
+            <img src="{{ author.avatar.url }}" alt="">
+        {% endfor %}
     </div>
+    {% endif %}
 {% endblock body %}
