@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% block title %}Home{% endblock title %}
 {% block body %}
-<h1>welcome to book store</h1>
+<h1>Search</h1>
 <div>
     <form action="{% url 'shop:search' %}" method="get">
         <input type="text" name="q">
@@ -29,7 +29,7 @@
     </div>
     <hr>
     <div>
-        {% for book in books %}
+        {% for book in search %}
             <img src="{{ book.book_profile_image.url }}" alt="book">
             <a href="{{ book.get_absolute_url }}">{{ book.title|title }}</a>
             <p>{{ book.price }}</p>

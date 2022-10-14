@@ -14,6 +14,7 @@ from django.contrib import messages
 from .forms import ReviewForm
 from django.urls import reverse
 from django.core.exceptions import PermissionDenied
+from django.db.models import Q
 # Create your views here.
 
 
@@ -32,6 +33,7 @@ class IndexView(CartMixin, generic.ListView):
         context['genres'] = genres
         return context
 
+
 class GetReview(generic.DetailView):
     model = Book
     context_object_name = 'book'
@@ -47,6 +49,7 @@ class GetReview(generic.DetailView):
     
     def get_queryset(self):
         return Book.published.filter(slug=self.kwargs['slug'])
+
 
 class PostReview(SingleObjectMixin, LoginRequiredMixin, generic.FormView):
     model = Book
@@ -75,9 +78,8 @@ class PostReview(SingleObjectMixin, LoginRequiredMixin, generic.FormView):
     def get_success_url(self):
         book = self.object
         return reverse('shop:book_detail', args=[book.slug])
-    
 
-        
+
 class BookDetailView(CartMixin, View):
     def get(self, request, *args, **kwargs):
         view = GetReview.as_view()
@@ -85,9 +87,6 @@ class BookDetailView(CartMixin, View):
     def post(self, request, *args, **kwargs):
         view = PostReview.as_view()
         return view(request, *args, **kwargs)
-
-    
-
 
 # class AuthorDetailView(generic.DetailView):
 #     model = Author
@@ -139,3 +138,20 @@ class AddToWishlist(LoginRequiredMixin, View):
             book.users_wishlist.add(request.user)
             messages.success(self.request, "Successfully Added to Wishlist")
             return redirect('shop:index')
+
+
+class SearchView(View):
+    template_name = 'search/search.html'
+    def get(self, request, *args, **kwargs):
+        query = request.GET.get('q')
+        search = Book.published.filter(
+            Q(title__icontains=query) | Q(description__icontains=query) |
+            Q(author__first_name__icontains = query) | Q(author__last_name__icontains=query) |
+            Q(author__description__icontains = query) |
+            Q(genre__genre__icontains=query) | Q(language__language__icontains=query) |
+            Q(publisher__name__icontains=query) | Q(publisher__website__icontains=query)
+        )
+        context = {
+            'search':search,
+        }
+        return render(request, self.template_name, context)
