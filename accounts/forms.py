@@ -18,6 +18,12 @@ class CustomUserCreationForm(UserCreationForm):
         if User.objects.filter(email=data).exists():
             raise forms.ValidationError('Email is already in use')
         return data
+    
+    def clean_username(self):
+        data = self.cleaned_data['username']
+        if len(data) < 5:
+            raise forms.ValidationError('Length of username must be greater than 4 digits')
+        return data
 
 
 class CustomUserChangeForm(UserChangeForm):
@@ -32,6 +38,12 @@ class CustomUserChangeForm(UserChangeForm):
         query = User.objects.exclude(id = self.instance.id).filter(email=data)
         if query.exists():
             raise forms.ValidationError('Email is already in use')
+        return data
+    
+    def clean_username(self):
+        data = self.cleaned_data['username']
+        if len(data) < 5:
+            raise forms.ValidationError('Lenght of username must be greater than 4 digits')
         return data
 
 class UserLoginForm(AuthenticationForm):
