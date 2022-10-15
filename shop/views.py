@@ -45,6 +45,10 @@ class GetReview(generic.DetailView):
         book = Book.published.get(slug=self.kwargs['slug'])
         review_user = book.book_reviews.filter(user__username=self.request.user)
         context['exist'] = review_user
+        book_visit_count = self.request.session.get('book_visit_count', 0)
+        newCount = book_visit_count + 1
+        self.request.session['book_visit_count'] = newCount
+        context['newCount']=newCount
         return context
     
     def get_queryset(self):
@@ -103,11 +107,14 @@ class AuthorDetailView(CartMixin, View):
         if request.user.is_authenticated:
             if followers.filter(followed_by=request.user, followed=author):
                 following_status = True
-
+        author_visit_count = request.session.get('author_visit_count', 0)
+        newCount = author_visit_count + 1
+        request.session['author_visit_count'] = newCount
         context = {
             'author':author,
             'following_status':following_status,
             'followers_count':followers_count,
+            'newCount':newCount,
         }
         return render(request, self.template_name, context)
 

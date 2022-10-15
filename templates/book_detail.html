@@ -5,6 +5,7 @@
 <a href="{% url 'shop:index' %}">Home</a>
     <img src="{{ book.book_profile_image.url }}" alt="book_profile">
     <h3>Title: {{ book.title }}</h3>
+    <p>You have visited {{ newCount }} time{% if newCount != 1 %}s{% endif %}</p>
     <form action="" method="get">
         <a href="{% url 'orders:add_to_cart' book.id %}">Add To Cart</a>
     </form>

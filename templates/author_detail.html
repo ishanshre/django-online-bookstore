@@ -3,6 +3,7 @@
 {% block body %}
 <a href="{% url 'shop:index' %}">Home</a>
 <h1>Name: {{ author.first_name }} {{ author.last_name }}</h1>
+<p>You have visited {{ newCount }} time{% if newCount != 1 %}s{% endif %}</p>
 {% if user.is_authenticated %}
 {% if following_status %}
     <form action="{% url 'follow:remove_follow' author.slug %}" method="post">
