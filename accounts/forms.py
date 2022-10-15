@@ -11,6 +11,13 @@ class CustomUserCreationForm(UserCreationForm):
     class Meta(UserCreationForm.Meta):
         model = get_user_model()
         fields = ['username','email']
+    
+    def clean_email(self):
+        User = get_user_model()
+        data = self.cleaned_data['email']
+        if User.objects.filter(email=data).exists():
+            raise forms.ValidationError('Email is already in use')
+        return data
 
 
 class CustomUserChangeForm(UserChangeForm):
@@ -19,7 +26,13 @@ class CustomUserChangeForm(UserChangeForm):
         model = get_user_model()
         fields = ['first_name','last_name','age','gender','username','email']
     
-
+    def clean_email(self):
+        User = get_user_model()
+        data = self.cleaned_data['email']
+        query = User.objects.exclude(id = self.instance.id).filter(email=data)
+        if query.exists():
+            raise forms.ValidationError('Email is already in use')
+        return data
 
 class UserLoginForm(AuthenticationForm):
     username = forms.CharField(max_length=50)
