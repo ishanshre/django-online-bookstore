@@ -6,6 +6,8 @@ from django.urls import reverse
 from django_extensions.db.fields import AutoSlugField
 from django.utils.translation import gettext as _
 from ckeditor_uploader.fields import RichTextUploadingField
+from django.db.models import Avg, Count
+from datetime import date
 # Create your models here.
 
 class PublishedManager(models.Manager):
@@ -76,6 +78,11 @@ class Book(models.Model):
     users_wishlist = models.ManyToManyField(get_user_model(), related_name='users_wishlist', blank=True)
     objects = models.Manager()
     published = PublishedManager()
+    created = models.DateTimeField(auto_now_add=True, null=True, blank=True)
+    updated = models.DateTimeField(auto_now=True, null=True, blank=True)
+
+    class Meta:
+        ordering = ['created']
 
     def save(self, *args, **kwargs):
         self.slug = slugify(self.title)
@@ -86,6 +93,20 @@ class Book(models.Model):
     
     def get_absolute_url(self):
         return reverse('shop:book_detail', args=[self.slug])
+    
+    def get_average_review(self):
+        review = Review.objects.filter(book=self).aggregate(Avg('rating'))
+        average_rating = 0.0
+        if review['rating__avg'] is not None:
+            average_rating = review['rating__avg']
+        return average_rating
+    
+    def get_count_review(self):
+        review = Review.objects.filter(book=self).aggregate(count=Count('id'))
+        count_review = 0
+        if review['count'] is not None:
+            count_review = review['count']
+        return count_review
 
 class Review(models.Model):
     rating = models.FloatField(validators=[MinValueValidator(0.0), MaxValueValidator(5.0)])

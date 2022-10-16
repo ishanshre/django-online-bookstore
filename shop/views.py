@@ -22,7 +22,7 @@ class IndexView(CartMixin, generic.ListView):
     template_name = 'index.html'
     models = Book
     context_object_name = 'books'
-    paginate_by = 2
+    paginate_by = 10
 
     def get_queryset(self):
         return Book.published.all()

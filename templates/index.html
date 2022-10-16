@@ -29,6 +29,7 @@
     </div>
     <hr>
     <div>
+        <h1>New Arrivals</h1>
         {% for book in books %}
             <img src="{{ book.book_profile_image.url }}" alt="book">
             <a href="{{ book.get_absolute_url }}">{{ book.title|title }}</a>
@@ -42,6 +43,31 @@
                 {% endif %}
             </form>
             <br><hr>
+        {% endfor %}
+    </div>
+
+    <br>
+    <hr>
+    <br>
+    <h1>
+        High Rated Books
+    </h1>
+    <div>
+        {% for book in books %}
+        {% if book.get_average_review > 3 %}
+        <img src="{{ book.book_profile_image.url }}" alt="book">
+        <a href="{{ book.get_absolute_url }}">{{ book.title|title }}</a>
+        <p>{{ book.price }}</p>
+        <form action="" method="get">
+            <a href="{% url 'orders:add_to_cart' book.id %}">Add To Cart</a>
+            {% if request.user in book.users_wishlist.all %}
+            <a href="{% url 'shop:add_to_wishlist' book.id %}">Remove from WishList</a>
+            {% else %}
+            <a href="{% url 'shop:add_to_wishlist' book.id %}">Add to WishList</a>
+            {% endif %}
+        </form>
+        {% endif %}
+        <br><hr>
         {% endfor %}
     </div>
     <div>
