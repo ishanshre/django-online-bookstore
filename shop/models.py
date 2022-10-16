@@ -88,7 +88,7 @@ class Book(models.Model):
         return reverse('shop:book_detail', args=[self.slug])
 
 class Review(models.Model):
-    rating = models.PositiveIntegerField(validators=[MinValueValidator(1), MaxValueValidator(5)])
+    rating = models.FloatField(validators=[MinValueValidator(0.0), MaxValueValidator(5.0)])
     comment = models.CharField(max_length=500, null=True, blank=True)
     user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, related_name='user_reviews')
     book = models.ForeignKey(Book, on_delete=models.CASCADE, related_name='book_reviews')
