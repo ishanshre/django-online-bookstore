@@ -217,7 +217,6 @@ class ProfileAndUpdateView(LoginRequiredMixin, View):
                 'user_form':user_form,
                 'profile_form':profile_form,
                 'password_change_form':password_change_form,
-                'password_change_form':password_change_form,
                 'followings':followings,
                 'followings_count':followings_count,
                 'address':address,
@@ -248,7 +247,7 @@ class ProfileAndUpdateView(LoginRequiredMixin, View):
             user_form = CustomUserChangeForm(instance = request.user)
             profile = Profile.objects.get(user=request.user)
             profile_form = ProfileForm(instance=request.user.profile)
-            password_change_form = CustomPasswordChangeForm(request.user, request.POST)
+            password_change_form = CustomPasswordChangeForm(request.user)
             followings = Follow.objects.filter(followed_by=request.user)
             followings_count = Follow.objects.filter(followed_by=request.user).count()
             address = ShippingAddressForm(request.POST)
