@@ -68,7 +68,6 @@ class CheckoutView(LoginRequiredMixin, CreateView):
         cart.delete_session()
         messages.success(self.request, "Checkout Successfull")
         return redirect("accounts:profile_and_update")
-        return super().form_valid(form)
 
 
 class OrderDetail(LoginRequiredMixin, DetailView):

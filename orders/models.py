@@ -41,7 +41,7 @@ class Order(models.Model):
 
     ordered_by = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
     shipping_address = models.ForeignKey(Address, related_name='shipping_address', on_delete=models.CASCADE, null=True)
-    order_status = models.CharField(max_length=20, choices=ORDER_STATUS.choices)
+    order_status = models.CharField(max_length=20, choices=ORDER_STATUS.choices, default=ORDER_STATUS.ORDER_RECEIVED)
     paid = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -51,6 +51,9 @@ class Order(models.Model):
 
     def get_absolute_url(self):
         return reverse('orders:order_detail', kwargs={'pk':self.pk})
+    
+    def get_total_price(self):
+        return sum(item.price * item.quantity for item in self.orderitems.all())
 
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='orderitems', null=True)
