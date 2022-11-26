@@ -1,7 +1,10 @@
 from django import forms
 from .models import Order, Address
 
-
+BOOK_QUANTITY_CHOICES = [(i, str(i)) for i in range(1,21)]
+class AddCartForm(forms.Form):
+    quantity = forms.TypedChoiceField(choices=BOOK_QUANTITY_CHOICES, coerce=int)
+    overrides = forms.BooleanField(required=False, initial=False, widget=forms.HiddenInput)
 
 class CheckOutForm(forms.ModelForm):
     '''
@@ -25,3 +28,4 @@ class ShippingAddressForm(forms.ModelForm):
 
 class ShippingAddressDeleteForm(forms.Form):
     delete_address = forms.BooleanField(widget=forms.HiddenInput, initial=True)
+

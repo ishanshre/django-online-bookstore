@@ -162,3 +162,5 @@ CRISPY_TEMPLATE_PACK = 'bootstrap5'
 LOGIN_REDIRECT_URL = 'shop:index'
 LOGOUT_REDIRECT_URL = 'accounts:login'
 LOGIN_URL =  'accounts:login'
+
+CART_SESSION_ID = 'cart'

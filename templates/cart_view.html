@@ -1,43 +1,56 @@
 {% extends 'base.html' %}
-{% block title %}{{ book.title }}{% endblock title %}
+{% load static %}
+{% block title %}Cart{% endblock title %}
 {% block body %}
 <a href="{% url 'shop:index' %}">Home</a>
 <h1>Your Cart</h1>
-<table style="width: 50%;">
+<table>
     <thead>
         <tr>
-            <th>SN</th>
-            <th>Book</th>
-            <th>Rate</th>
+            <th>Image</th>
+            <th>Product</th>
             <th>Quantity</th>
-            <th>Subtotal</th>
-            <th>Action</th>
-        </tr>
+            <th>Remove</th>
+            <th>Unit price</th>
+            <th>Price</th>
+          </tr>
     </thead>
     <tbody>
-        {% for item in cart.cartitems.all %}
+        {% for item in cart %}
+          {% with book=item.book %}
             <tr>
-                <td>{{ forloop.counter }}</td>
-                <td>{{ item.book.title }}</td>
-                <td>{{ item.rate }}</td>
-                <td>{{ item.quantity }}</td>
-                <td>{{ item.subtotal }}</td>
-                <td>
-                    <a href="{% url 'orders:cart_manage_view' item.id %}?action=inc">+</a>
-                    <a href="{% url 'orders:cart_manage_view' item.id %}?action=dec">-</a>
-                    <a href="{% url 'orders:cart_manage_view' item.id %}?action=rem">x</a>
-                </td>
+              <td>
+                <a href="{{ book.get_absolute_url }}">
+                  <img src="{% if book.book_profile_image %}{{ book.book_profile_image.url }}
+                  {% else %}{% static 'default.png' %}{% endif %}">
+                </a>
+              </td>
+              <td>{{ book.title }}</td>
+              <td>
+                <form action="{% url 'orders:add_to_cart' book.id %}" method="post">
+                  {{ item.update_quantity_form.quantity }}
+                  {{ item.update_quantity_form.override }}
+                  <input type="submit" value="Update">
+                  {% csrf_token %}
+                </form>
+              </td>
+              <td>
+                <form action="{% url 'orders:cart_remove' book.id %}" method="post">
+                  <input type="submit" value="Remove">
+                  {% csrf_token %}
+                </form>
+              </td>
+              <td class="num">${{ item.price }}</td>
+              <td class="num">${{ item.total_price }}</td>
             </tr>
+          {% endwith %}
         {% endfor %}
-            <tr>
-                <td>Total</td>
-                <td>{{ cart.total }}</td>
-            </tr>
-            <tr>
-                <td><a href="{% url 'orders:cart_empty_view' %}">Empty Cart</a></td>
-            </tr>
+        <tr class="total">
+          <td>Total</td>
+          <td colspan="4"></td>
+          <td class="num">Rs {{ cart.get_total_price }}</td>
+        </tr>
     </tbody>
 </table>
-<hr>
 <a href="{% url 'orders:checkout' %}">Checkout</a>
 {% endblock body %}
