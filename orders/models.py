@@ -28,6 +28,9 @@ class Address(models.Model):
 
     def get_absolute_url(self):
         return reverse('orders:shipping_address_detail', args=[self.slug])
+    
+    def get_address(self):
+        return f"{self.street_address}, {self.city}, {self.country}"
 
 
 class Order(models.Model):
@@ -43,6 +46,7 @@ class Order(models.Model):
     shipping_address = models.ForeignKey(Address, related_name='shipping_address', on_delete=models.CASCADE, null=True)
     order_status = models.CharField(max_length=20, choices=ORDER_STATUS.choices, default=ORDER_STATUS.ORDER_RECEIVED)
     paid = models.BooleanField(default=False)
+    paid_price = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
