@@ -9,16 +9,17 @@ from .models import (
 )
 from django.contrib.auth.mixins import LoginRequiredMixin
 from follow.models import Follow
-from orders.views import CartMixin
+#from orders.views import CartMixin
 from django.contrib import messages
 from .forms import ReviewForm
 from django.urls import reverse
 from django.core.exceptions import PermissionDenied
 from django.db.models import Q
+from orders.forms import AddCartForm
 # Create your views here.
 
 
-class IndexView(CartMixin, generic.ListView):
+class IndexView(generic.ListView):
     template_name = 'index.html'
     models = Book
     context_object_name = 'books'
@@ -30,6 +31,8 @@ class IndexView(CartMixin, generic.ListView):
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
         genres = Genre.objects.all()
+        add_cart_form = AddCartForm()
+        context['add_cart_form'] = add_cart_form
         context['genres'] = genres
         return context
 
@@ -84,7 +87,7 @@ class PostReview(SingleObjectMixin, LoginRequiredMixin, generic.FormView):
         return reverse('shop:book_detail', args=[book.slug])
 
 
-class BookDetailView(CartMixin, View):
+class BookDetailView(View):
     def get(self, request, *args, **kwargs):
         view = GetReview.as_view()
         return view(request, *args, **kwargs)
@@ -97,7 +100,7 @@ class BookDetailView(CartMixin, View):
 #     context_object_name = 'author'
 #     template_name = 'author_detail.html'
 
-class AuthorDetailView(CartMixin, View):
+class AuthorDetailView(View):
     template_name = 'author_detail.html'
     def get(self, request, *args, **kwargs):
         author = Author.objects.get(slug=self.kwargs['slug'])
@@ -118,7 +121,7 @@ class AuthorDetailView(CartMixin, View):
         }
         return render(request, self.template_name, context)
 
-class GenreBookView(CartMixin, generic.ListView):
+class GenreBookView(generic.ListView):
     model = Genre
     template_name = 'book_by_genre.html'
     context_object_name = 'books'

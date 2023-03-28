@@ -12,6 +12,9 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 
 from pathlib import Path
 import os
+from dotenv import load_dotenv
+load_dotenv()
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -20,7 +23,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-!uh#3dkffj7jc$n!1ca=zlec_if1_amyvd4z2+-lc9y+nm7o%y'
+SECRET_KEY = str(os.getenv("DJANGO_SECRET_KEY"))
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -79,6 +82,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'orders.context_processors.cart',
             ],
         },
     },
@@ -154,6 +158,9 @@ AUTH_USER_MODEL = 'accounts.User'
 
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
+STRIPE_API_PUBLIC_KEY = str(os.getenv("STRIPE_API_PUBLIC_KEY"))
+STRIPE_API_PRIVATE_KEY = str(os.getenv("STRIPE_API_PRIVATE_KEY"))
+
 
 CRISPY_ALLOWED_TEMPLATE_PACKS = 'bootstrap5'
 CRISPY_TEMPLATE_PACK = 'bootstrap5'
@@ -161,3 +168,5 @@ CRISPY_TEMPLATE_PACK = 'bootstrap5'
 LOGIN_REDIRECT_URL = 'shop:index'
 LOGOUT_REDIRECT_URL = 'accounts:login'
 LOGIN_URL =  'accounts:login'
+
+CART_SESSION_ID = 'cart'

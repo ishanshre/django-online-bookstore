@@ -34,8 +34,13 @@
             <img src="{{ book.book_profile_image.url }}" alt="book">
             <a href="{{ book.get_absolute_url }}">{{ book.title|title }}</a>
             <p>{{ book.price }}</p>
+            <form action="{% url 'orders:add_to_cart' book.id %}" method="post">
+                {% csrf_token %}
+                {{ add_cart_form }}
+                <input type="submit" value="Add to Cart">
+            </form>
             <form action="" method="get">
-                <a href="{% url 'orders:add_to_cart' book.id %}">Add To Cart</a>
+                
                 {% if request.user in book.users_wishlist.all %}
                 <a href="{% url 'shop:add_to_wishlist' book.id %}">Remove from WishList</a>
                 {% else %}

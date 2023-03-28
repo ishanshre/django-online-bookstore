@@ -1,279 +1,85 @@
-from django.shortcuts import render, redirect
-from django.views import View
-from django.views.generic import TemplateView, DetailView
-from django.views.generic.edit import CreateView, UpdateView, DeleteView
+from django.shortcuts import render, redirect, get_object_or_404
+from orders.cart import Cart
 from shop.models import Book
-from .models import Cart,CartItem, Address, Order
-from .forms import CheckOutForm, ShippingAddressForm, ShippingAddressDeleteForm
-from django.contrib import messages
-from django.urls import reverse_lazy
+from orders.models import Order, Address, OrderItem
+from django.views import View
+from orders.forms import AddCartForm, CheckOutForm, ShippingAddressDeleteForm, ShippingAddressForm
+from django.views.decorators.http import require_POST
+from django.views.generic.edit import CreateView
+from django.views.generic import DetailView
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-# Create your views here.
-
-class CartMixin(object):
-    def dispatch(self, request, *args, **kwargs):
-        cart_id = request.session.get('cart_id', None)
-        if cart_id:
-            try:
-                cart = Cart.objects.get(id = cart_id)
-                if request.user.is_authenticated:
-                    cart.user = request.user
-                    cart.save()
-            except:
-                pass
-        return super().dispatch(request, *args, **kwargs)
+from django.contrib import messages
 
 
-
-class AddToCartView(CartMixin, View):
-    def get(self, request, *args, **kwargs):
-        #get product id
-        book_id = self.kwargs['book_id']
-        #get product
-        book_object = Book.objects.get(id=book_id)
-        #check if cart exist 
-        if self.request.user.is_authenticated:
-            exist_cart = request.user.users.last()
-            if exist_cart:
-                cart_id = exist_cart.id
-                if cart_id:
-                    cart = exist_cart
-                    items_in_cart = cart.cartitems.filter(book=book_object)
-                    if items_in_cart.exists():
-                        cart_item = items_in_cart.last()
-                        cart_item.quantity += 1
-                        cart_item.subtotal += book_object.price
-                        cart_item.save()
-                        cart.total += book_object.price
-                        cart.save()
-                        messages.success(request, 'Item Added To Cart')
-                        return redirect('shop:index')
-                    else:
-                        cart_item = CartItem.objects.create(
-                            cart = cart,
-                            book = book_object,
-                            rate = book_object.price,
-                            quantity=1,
-                            subtotal=book_object.price
-                        )
-                        cart.total += book_object.price
-                        cart.save()
-                        messages.success(request, 'Item Added To Cart')
-                        return redirect('shop:index')
-            else:
-                cart_object = Cart.objects.create(total=0, user=request.user)
-                cart_item = CartItem.objects.create(
-                        cart = cart_object,
-                        book = book_object,
-                        rate = book_object.price,
-                        quantity=1,
-                        subtotal=book_object.price
-                    )
-            cart_object.total += book_object.price
-            cart_object.save()
-            messages.success(request, 'Item Added To Cart')
-            return redirect('shop:index')
-        else:
-            cart_id = self.request.session.get("cart_id", None)
-            if cart_id:
-                cart = Cart.objects.get(id=cart_id)
-                items_in_cart = cart.cartitems.filter(book=book_object)
-                if items_in_cart.exists():
-                    cart_item = items_in_cart.last()
-                    cart_item.quantity += 1
-                    cart_item.subtotal += book_object.price
-                    cart_item.save()
-                    cart.total += book_object.price
-                    cart.save()
-                    messages.success(request, 'Item Added To Cart')
-                    return redirect('shop:index')
-                else:
-                    cart_item = CartItem.objects.create(
-                        cart = cart,
-                        book = book_object,
-                        rate = book_object.price,
-                        quantity=1,
-                        subtotal=book_object.price
-                    )
-                    cart.total += book_object.price
-                    cart.save()
-                    messages.success(request, 'Item Added To Cart')
-                    return redirect('shop:index')
-            else:
-                cart_object = Cart.objects.create(total=0)
-                self.request.session['cart_id'] = cart_object.id
-                cart_item = CartItem.objects.create(
-                        cart = cart_object,
-                        book = book_object,
-                        rate = book_object.price,
-                        quantity=1,
-                        subtotal=book_object.price
-                    )
-            cart_object.total += book_object.price
-            cart_object.save()
-            messages.success(request, 'Item Added To Cart')
-            return redirect('shop:index')
-        #check if cart product already in cart
-
-        return redirect('shop:index')
+@require_POST
+def AddToCartView(request, book_id):
+    cart = Cart(request=request)
+    book = get_object_or_404(Book, id=book_id)
+    form = AddCartForm(request.POST)
+    if form.is_valid():
+        cd = form.cleaned_data # cd -> cleaned_data ---> minimizing the code
+        cart.add(book=book, quantity=cd['quantity'], overrides_quantity = cd['overrides'])
+    return redirect("orders:cart_view")
 
 
-class CartView(CartMixin, TemplateView):
-    template_name = 'cart_view.html'
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        if self.request.user.is_authenticated:
-            exist_cart = self.request.user.users.last()
-            if exist_cart:
-                cart = exist_cart
-            else:
-                cart_id = self.request.session.get('cart_id', None)
-                cart = None
-                if cart_id:
-                    try:
-                        cart = Cart.objects.get(id=cart_id)
-                    except:
-                        cart = None
-        else:
-            cart_id = self.request.session.get('cart_id', None)
-            cart = None
-            if cart_id:
-                try:
-                    cart = Cart.objects.get(id=cart_id)
-                except:
-                    cart = None
-        context['cart'] = cart 
-        return context
+def CartView(request):
+    cart = Cart(request)
+    for item in cart:
+        item['update_quantity_form'] = AddCartForm(initial={
+            'quantity':item['quantity'],
+            'override':True
+        })
+    return render(request, "cart_view.html", {"cart":cart})
 
+@require_POST
+def CartRemove(request, book_id):
+    cart = Cart(request)
+    cart.remove(book_id)
+    return redirect("orders:cart_view")
+class CartEmptyView(View):
+    pass
 
-class CartManageView(CartMixin, View):
-    def get(self, request, *args, **kwargs):
-        cart_item_id = self.kwargs['cart_item_id']
-        action = request.GET.get('action')
-        cart_item = CartItem.objects.get(id=cart_item_id)
-        cart = cart_item.cart
-        if action == 'inc':
-            cart_item.quantity += 1
-            cart_item.subtotal += cart_item.rate
-            cart_item.save()
-            cart.total += cart_item.rate
-            cart.save()
-        elif action == 'dec':
-            cart_item.quantity -= 1
-            cart_item.subtotal -= cart_item.rate
-            cart_item.save()
-            cart.total -= cart_item.rate
-            cart.save()
-            if cart_item.quantity == 0:
-                cart_item.delete()
-
-        elif action == 'rem':
-            cart.total -= cart_item.subtotal
-            cart.save()
-            cart_item.delete()
-        else:
-            pass
-        return redirect('orders:cart_view')
-
-
-class CartEmptyView(CartMixin, View):
-    def get(self, request, *args, **kwargs):
-        if request.user.is_authenticated:
-            exist_cart = request.user.users.last()
-            if exist_cart:
-                cart_id = exist_cart.id
-                if cart_id:
-                    cart = exist_cart
-                    cart.cartitems.all().delete()
-                    cart.total = 0
-                    cart.save()
-                return redirect("orders:cart_view")
-            else:
-                cart_id = request.session.get('cart_id', None)
-                if cart_id:
-                    cart = Cart.objects.get(id=cart_id)
-                    cart.cartitems.all().delete()
-                    cart.total = 0
-                    cart.save()
-                return redirect("orders:cart_view")
-        else:
-            cart_id = request.session.get('cart_id', None)
-            if cart_id:
-                cart = Cart.objects.get(id=cart_id)
-                cart.cartitems.all().delete()
-                cart.total = 0
-                cart.save()
-            return redirect("orders:cart_view")
-        return redirect("orders:cart_view")
-
-class CheckoutView(LoginRequiredMixin, CartMixin, CreateView):
-    template_name = 'checkout.html'
+class CheckoutView(LoginRequiredMixin, CreateView):
+    template_name: str = "checkout.html"
     form_class = CheckOutForm
-    success_url = reverse_lazy('shop:index')
+    success_url = "orders:order_detail"
 
-    def get_context_data(self, *args, **kwargs):
-        context = super().get_context_data(*args, **kwargs)
-        exist_cart = self.request.user.users.last()
-        if exist_cart:
-            cart_id = exist_cart.id
-            cart = None
-            if cart_id:
-                cart = exist_cart
-        else:
-            cart_id = self.request.session.get('cart_id', None)
-            cart = None
-            if cart_id:
-                cart = Cart.objects.get(id=cart_id)
-        context['cart'] = cart
-        return context
-    '''
-    Using get_from_kwargs method we pass the logged in user to the checkout form
-    '''
     def get_form_kwargs(self):
         kwargs = super(CheckoutView, self).get_form_kwargs()
         kwargs['user'] = self.request.user
         return kwargs
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['cart'] = Cart(self.request)
+        return context
+    
     def form_valid(self, form):
-        exist_cart = self.request.user.users.last()
-        if exist_cart:
-            cart = exist_cart
-            form.instance.cart = cart
-            form.instance.ordered_by = self.request.user
-            form.instance.subtotal = cart.total
-            form.instance.discount = 0
-            form.instance.total = cart.total
-            form.instance.order_status = "Order Received"
-            form.instance.save()
-            #now linking cartitems order to order model
-            for items in cart.cartitems.all():
-                items.order = form.instance
-                items.save()
-            session_id =  self.request.session.get('cart_id')
-            del session_id # deleting cart session
-            exist_cart.delete() # deleting existing cart
-            messages.success(self.request, 'Checkout Successfull')
-            return redirect('shop:index')
-        else:
-            return redirect('shop:index')
-        # else:
-        #     cart_id = self.request.session.get("cart_id", None)
-        #     if cart_id:
-        #         cart = Cart.objects.get(id=cart_id)
-        #         form.instance.cart = cart
-        #         form.instance.ordered_by = self.request.user
-        #         form.instance.subtotal = cart.total
-        #         form.instance.discount = 0
-        #         form.instance.total = cart.total
-        #         form.instance.order_status = "Order Received"
-        #         del self.request.session['cart_id']
-        #         messages.success(self.request, 'Checkout Successfull')
-        #     else:
-        #         return redirect("shop:index")
-       
+        form.instance.ordered_by = self.request.user
+        order = form.save()
+        cart = Cart(self.request)
+        for item in cart:
+            OrderItem.objects.create(
+                order=order,
+                book = item['book'],
+                price = item['price'],
+                quantity = item['quantity'],
+            )
+        cart.delete_session()
+        messages.success(self.request, "Checkout Successfull")
+        return redirect("accounts:profile_and_update")
 
 
-class ShippingAddressDetailView(LoginRequiredMixin,UserPassesTestMixin, CartMixin, View):
+class OrderDetail(LoginRequiredMixin, DetailView):
+    model = Order
+    context_object_name = 'order'
+    template_name = 'order_detail.html'
+
+    def get_queryset(self):
+        return Order.objects.filter(ordered_by=self.request.user)
+
+
+class ShippingAddressDetailView(LoginRequiredMixin,UserPassesTestMixin, View):
     template_name = 'shipping_address.html'
     def get(self, request, *args, **kwargs):
         address_slug = self.kwargs['slug']
@@ -289,9 +95,9 @@ class ShippingAddressDetailView(LoginRequiredMixin,UserPassesTestMixin, CartMixi
 
     def post(self, request, *args, **kwargs):
         address_slug = self.kwargs['slug']
-        address_instance = Address.objects.get(slug=address_slug)
+        shipping_address = Address.objects.get(slug=address_slug)
         if 'update_address' in request.POST:
-            update_form = ShippingAddressForm(request.POST, instance=address_instance)
+            update_form = ShippingAddressForm(request.POST, instance=shipping_address)
             if update_form.is_valid():
                 a = update_form.save()
                 messages.success(request, "Shipping address updated")
@@ -302,25 +108,19 @@ class ShippingAddressDetailView(LoginRequiredMixin,UserPassesTestMixin, CartMixi
         if 'delete_address' in request.POST:
             delete_form = ShippingAddressDeleteForm(request.POST)
             if delete_form.is_valid():
-                address_instance.delete()
+                shipping_address.delete()
                 messages.success(request, "Shipping Address Deleted Successfull")
                 return redirect("accounts:profile_and_update")
             else:
                 messages.error(request, "Detete Failed! Please Try Again")
                 return redirect('orders:shipping_address_detail', address_slug)
         context = {
-            'form':form,
+            'shipping_address': shipping_address,
+            'update_form':update_form,
+            'delete_form':delete_form,
         }
         return render(request, self.template_name, context)
     
     def test_func(self):
         address = Address.objects.get(slug=self.kwargs['slug'])
         return address.user == self.request.user
-
-class OrderDetail(LoginRequiredMixin, DetailView):
-    model = Order
-    context_object_name = 'order'
-    template_name = 'order_detail.html'
-
-    def get_queryset(self):
-        return Order.objects.filter(ordered_by=self.request.user)

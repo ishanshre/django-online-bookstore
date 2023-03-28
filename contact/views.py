@@ -2,10 +2,10 @@ from django.shortcuts import render, redirect
 from .forms import ContactForm
 from django.views import View
 from django.contrib import messages
-from orders.views import CartMixin
+#from orders.views import CartMixin
 # Create your views here.
 
-class ContactUs(CartMixin, View):
+class ContactUs(View):
     template_name = 'contact/contact_us.html'
     def get(self, request, *args, **kwargs):
         form = ContactForm()

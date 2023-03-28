@@ -73,7 +73,7 @@ class Book(models.Model):
     is_active = models.BooleanField(default=True)
     stock = models.PositiveIntegerField(validators=[MinValueValidator(0), MaxValueValidator(50)])
     marked_price = models.PositiveIntegerField(default=0)
-    price = models.FloatField(default=0)
+    price = models.DecimalField(default=0, max_digits=12, decimal_places=2)
     discount = models.FloatField(default=0)
     users_wishlist = models.ManyToManyField(get_user_model(), related_name='users_wishlist', blank=True)
     objects = models.Manager()
