@@ -3,3 +3,4 @@ __pycache__/
 db.sqlite
 media
 core/.env
+static/
